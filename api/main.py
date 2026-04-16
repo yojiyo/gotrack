@@ -22,6 +22,7 @@ import uuid
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from collections import defaultdict
+from mangum import Mangum
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -83,6 +84,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+handler = Mangum(app)
 
 @app.get("/")
 async def root():
