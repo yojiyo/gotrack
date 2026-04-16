@@ -9,3 +9,4 @@ requests
 aiofiles
 email-validator
 psycopg2-binary
+mangum
