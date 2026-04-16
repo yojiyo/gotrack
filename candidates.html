@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GoTrack – Candidates</title>
+
+  <link rel="stylesheet" href="/static/dashboard.css" />
+  <link rel="stylesheet" href="/static/candidates.css" />
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+</head>
+
+<body>
+
+  <div id="sidebar-container"></div>
+
+  <main class="main-content">
+    <div id="header-container"></div>
+
+    <div class="controls-bar">
+      <div class="pipeline-tabs">
+        <button class="tab-btn active" id="btnCandidatePipeline" onclick="switchPipeline('candidate')">
+          <i class="ph ph-users"></i> Candidate
+        </button>
+        <button class="tab-btn" id="btnEmployeePipeline" onclick="switchPipeline('employee')">
+          <i class="ph ph-briefcase"></i> Employee Cycle
+        </button>
+      </div>
+
+      <div class="action-buttons">
+        <div class="view-toggles">
+          <button class="toggle-btn active" id="btnBoard"><i class="ph ph-kanban"></i> Board</button>
+          <button class="toggle-btn" id="btnList"><i class="ph ph-list-dashes"></i> List</button>
+        </div>
+
+        <div style="position: relative;">
+          <button class="btn-outline" onclick="toggleFilterMenu('candidateFilter')">
+            <i class="ph ph-funnel"></i> Filter
+          </button>
+          <div id="candidateFilter" class="filter-dropdown">
+            <div class="filter-group">
+              <label>Job Role</label>
+              <select id="filterRole">
+                <option value="all">All Roles</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>Sort By</label>
+              <select id="filterSort">
+                <option value="newest">Newest Applied</option>
+                <option value="oldest">Oldest Applied</option>
+              </select>
+            </div>
+            <div class="filter-actions">
+              <button class="btn-primary-small" onclick="applyCandidateFilters()">Apply</button>
+            </div>
+          </div>
+        </div>
+
+        <button class="create-btn" onclick="openAddModal()"><i class="ph ph-plus"></i> Add Candidate</button>
+      </div>
+    </div>
+
+    <div class="kanban-container" id="kanbanView">
+      <div class="kanban-col" data-status="Applied" ondragover="allowDrop(event)" ondrop="drop(event)">
+        <div class="col-header">
+          <div class="col-title"><span class="dot blue"></span> APPLIED</div>
+          <span class="count" id="count-applied">0</span>
+        </div>
+        <div class="col-body" id="body-applied"></div>
+      </div>
+
+      <div class="kanban-col" data-status="Screening" ondragover="allowDrop(event)" ondrop="drop(event)">
+        <div class="col-header">
+          <div class="col-title"><span class="dot yellow"></span> SCREENING</div>
+          <span class="count" id="count-screening">0</span>
+        </div>
+        <div class="col-body" id="body-screening"></div>
+      </div>
+
+      <div class="kanban-col" data-status="Shortlisted" ondragover="allowDrop(event)" ondrop="drop(event)">
+        <div class="col-header">
+          <div class="col-title"><span class="dot" style="background-color: #0ea5e9;"></span> SHORTLISTED</div>
+          <div class="col-header-actions">
+            <button class="archive-btn" onclick="archiveCandidateColumn('Shortlisted')" title="Archive Shortlisted">
+              <i class="ph ph-archive-box"></i>
+            </button>
+            <span class="count" id="count-shortlisted">0</span>
+          </div>
+        </div>
+        <div class="col-body" id="body-shortlisted"></div>
+      </div>
+
+      <div id="interview-zone" class="kanban-col" data-status="Interview" ondragover="allowDrop(event)"
+        ondrop="drop(event)">
+        <div class="col-header">
+          <div class="col-title"><span class="dot orange"></span> INTERVIEW</div>
+          <span class="count" id="count-interview">0</span>
+        </div>
+        <div class="col-body" id="body-interview"></div>
+      </div>
+
+      <div class="kanban-col" data-status="Offer" ondragover="allowDrop(event)" ondrop="drop(event)">
+        <div class="col-header">
+          <div class="col-title"><span class="dot violet"></span> OFFER</div>
+          <span class="count" id="count-offer">0</span>
+        </div>
+        <div class="col-body" id="body-offer"></div>
+      </div>
+
+      <div class="kanban-col" data-status="Hired" ondragover="allowDrop(event)" ondrop="drop(event)">
+        <div class="col-header">
+          <div class="col-title"><span class="dot green"></span> HIRED</div>
+          <span class="count" id="count-hired">0</span>
+        </div>
+        <div class="col-body" id="body-hired"></div>
+      </div>
+
+      <div class="kanban-col" data-status="Rejected" ondragover="allowDrop(event)" ondrop="drop(event)">
+        <div class="col-header">
+          <div class="col-title"><span class="dot red"></span> REJECTED</div>
+          <div class="col-header-actions">
+            <button class="archive-btn" onclick="archiveCandidateColumn('Rejected')" title="Archive Rejected">
+              <i class="ph ph-archive-box"></i>
+            </button>
+            <span class="count" id="count-rejected">0</span>
+          </div>
+        </div>
+        <div class="col-body" id="body-rejected"></div>
+      </div>
+    </div>
+
+    <div class="kanban-container" id="employeePipelineView" style="display: none;">
+      <div class="kanban-col" data-stage="Pre-Employment" ondragover="allowDrop(event)" ondrop="dropCycle(event)">
+        <div class="col-header">
+          <div class="col-title"><span class="dot orange"></span> PRE-EMPLOYMENT</div>
+          <span class="count">0</span>
+        </div>
+        <div class="col-body" id="body-preemp"></div>
+      </div>
+
+      <div class="kanban-col" data-stage="Onboarding" ondragover="allowDrop(event)" ondrop="dropCycle(event)">
+        <div class="col-header">
+          <div class="col-title"><span class="dot violet"></span> ONBOARDING</div>
+          <span class="count">0</span>
+        </div>
+        <div class="col-body" id="body-onboarding"></div>
+      </div>
+
+      <div class="kanban-col" data-stage="Regularization" ondragover="allowDrop(event)" ondrop="dropCycle(event)">
+        <div class="col-header">
+          <div class="col-title"><span class="dot blue"></span> REGULARIZATION</div>
+          <span class="count">0</span>
+        </div>
+        <div class="col-body" id="body-regular"></div>
+      </div>
+
+      <div class="kanban-col" data-stage="Exit Interview" ondragover="allowDrop(event)" ondrop="dropCycle(event)">
+        <div class="col-header">
+          <div class="col-title"><span class="dot yellow"></span> EXIT INTERVIEW</div>
+          <span class="count">0</span>
+        </div>
+        <div class="col-body" id="body-exit"></div>
+      </div>
+
+      <div class="kanban-col" data-stage="Departure" ondragover="allowDrop(event)" ondrop="dropCycle(event)">
+        <div class="col-header">
+          <div class="col-title"><span class="dot red"></span> DEPARTURE</div>
+          <span class="count">0</span>
+        </div>
+        <div class="col-body" id="body-departure"></div>
+      </div>
+    </div>
+
+    <div class="list-view hidden" id="listView">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Stage</th>
+            <th>Applied Date</th>
+            <th>Hiring Lead</th>
+            <th style="text-align: right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="candidateListBody">
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+
+  <!-- Candidate Detail Modal -->
+  <div id="candidateModal" class="modal-backdrop">
+    <div class="slide-panel">
+      <div class="panel-header">
+        <div class="ph-left">
+          <div class="avatar-lg" id="mAvatar">A</div>
+          <div>
+            <h2 id="mName">Name</h2>
+            <p class="header-role" id="mRole">Role</p>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="status-pill blue" id="mStatus">Applied</span>
+              <span class="text-muted" id="mAppliedDate">• Applied 2d ago</span>
+            </div>
+          </div>
+        </div>
+        <button class="close-btn" onclick="closeModal()"><i class="ph ph-x"></i></button>
+      </div>
+
+      <div class="panel-body">
+        <div class="panel-left">
+          <div class="panel-section">
+            <h4 style="font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; margin-bottom:16px;">
+              Contact Info</h4>
+            <div class="info-row"><i class="ph ph-envelope"></i><span id="mEmail">email@example.com</span></div>
+            <div class="info-row"><i class="ph ph-phone"></i><span>+1 (555) 000-0000</span></div>
+            <div class="info-row"><i class="ph ph-map-pin"></i><span>Location</span></div>
+            <div class="info-row"><i class="ph ph-linkedin-logo"></i><span>LinkedIn</span></div>
+          </div>
+
+          <div class="panel-section">
+            <h4 style="font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; margin-bottom:16px;">
+              Resume</h4>
+            <div class="file-card">
+              <div class="file-info">
+                <i class="ph ph-file file-icon" style="color:#94a3b8;"></i>
+                <span style="color:#94a3b8;">No resume uploaded</span>
+              </div>
+            </div>
+          </div>
+
+          <div id="convertSection" style="display:none;">
+            <button class="btn-convert" onclick="convertToEmployee()">
+              <i class="ph ph-user-check"></i> Convert to Employee — <span id="convertName"></span>
+            </button>
+            <p class="convert-hint">This will create an employee record and login account.</p>
+          </div>
+        </div>
+
+        <div class="panel-right">
+          <div class="panel-section">
+            <h4 style="font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; margin-bottom:16px;">
+              Activity Timeline</h4>
+            <div class="activity-timeline"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Schedule Popup -->
+  <div id="schedulePopup" class="modal-backdrop" style="justify-content:center; align-items:center;">
+    <div class="popup-content">
+      <div class="popup-icon"><i class="ph ph-calendar-check"></i></div>
+      <h3>Schedule Interview</h3>
+      <p><strong id="popupCandidateName"></strong> has been moved to Interview. Would you like to schedule their
+        interview now?</p>
+      <div class="popup-actions">
+        <button class="btn-text" onclick="closeSchedulePopup()">Later</button>
+        <button class="btn-primary" onclick="redirectToSchedule()">Go to Schedule</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="addCandidateModal" class="modal-backdrop" style="justify-content:center; align-items:center; display:none;">
+    <div class="modal-content" style="width:400px; background:white; border-radius:12px; padding:32px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.1);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+        <h3 style="font-size:18px; color:#1e293b; margin:0;">Add New Candidate</h3>
+        <button onclick="closeAddModal()" style="background:none; border:none; font-size:20px; cursor:pointer; color:#94a3b8;"><i class="ph ph-x"></i></button>
+      </div>
+  
+      <form id="addCandidateForm" onsubmit="handleNewCandidate(event)">
+        <div style="margin-bottom:16px;">
+          <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:4px;">Full Name</label>
+          <input type="text" id="newCandName" required placeholder="e.g. Sarah Connor"
+            style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:8px; outline:none; box-sizing:border-box;">
+        </div>
+        <div style="margin-bottom:16px;">
+          <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:4px;">Role Applied For</label>
+          <select id="newCandRole"
+            style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:8px; outline:none;">
+          </select>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:4px;">Email Address</label>
+          <input type="email" id="newCandEmail" placeholder="candidate@example.com"
+            style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:8px; outline:none; box-sizing:border-box;">
+        </div>
+        <div style="margin-bottom:16px;">
+          <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:4px;">Phone Number</label>
+          <input type="tel" id="newCandPhone" placeholder="e.g. +63 912 345 6789"
+            style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:8px; outline:none; box-sizing:border-box;">
+        </div>
+        <div style="margin-bottom:24px;">
+          <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:4px;">Home Address</label>
+          <input type="text" id="newCandAddress" placeholder="e.g. 123 Main St, Olongapo City"
+            style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:8px; outline:none; box-sizing:border-box;">
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:12px;">
+          <button type="button" onclick="closeAddModal()"
+            style="padding:10px 16px; border:1px solid #e2e8f0; background:white; border-radius:6px; cursor:pointer; color:#475569;">Cancel</button>
+          <button type="submit"
+            style="padding:10px 16px; border:none; background:#2563eb; color:white; border-radius:6px; cursor:pointer; font-weight:600;">Add to Pipeline</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <script src="/static/config.js"></script>
+  <script src="/static/sidebar.js"></script>
+  <script src="/static/header.js"></script>
+  <script src="/static/candidates.js"></script>
+  <script src="/static/footer.js"></script>
+  <script>
+    loadSidebar('candidates');
+    loadHeader('Pipeline Management');
+    loadFooter();
+  </script>
+</body>
+
+</html>

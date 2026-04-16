@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GoTrack – Admin Login</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="brand">
+
+    </div>
+
+    <div class="login-card">
+      <h2>Admin Login</h2>
+      <p class="subtitle">Sign in to manage your data</p>
+
+      <form id="loginForm">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="admin@gocloud.com" required />
+
+        <label>Password</label>
+        <input type="password" id="password" placeholder="*****" required />
+
+        <p id="error-message" style="color: red; display: none; font-size: 14px; margin-bottom: 10px;"></p>
+
+        <button type="submit">Sign in</button>
+      </form>
+    </div>
+  </div>
+  <script src="/static/config.js"></script>
+  <script>
+    if (localStorage.getItem('isLoggedIn') === 'true') {
+      window.location.replace(`${CONFIG.API_BASE_URL}/dashboard`);
+    }
+
+    const loginForm = document.getElementById('loginForm');
+    const errorMessage = document.getElementById('error-message');
+    const submitBtn = loginForm.querySelector('button');
+
+    const MAX_ATTEMPTS = 3;
+    const LOCKOUT_DURATION = 5 * 60 * 1000;
+    let countdownInterval;
+
+    function getFailedAttempts() {
+      return parseInt(localStorage.getItem('goTrack_failedAttempts') || '0', 10);
+    }
+
+    function setFailedAttempts(count) {
+      localStorage.setItem('goTrack_failedAttempts', count);
+    }
+
+    function resetLockout() {
+      localStorage.removeItem('goTrack_failedAttempts');
+      localStorage.removeItem('goTrack_lockoutTimestamp');
+    }
+
+    function updateTimer(startTime) {
+      const now = Date.now();
+      const timeLeft = LOCKOUT_DURATION - (now - startTime);
+
+      if (timeLeft <= 0) {
+        resetLockout();
+        enableUI();
+        return false;
+      }
+
+      const minutes = Math.floor(timeLeft / 60000);
+      const seconds = Math.floor((timeLeft % 60000) / 1000);
+
+      showError(`Too many failed attempts. Try again in ${minutes}m ${seconds}s.`);
+      return true;
+    }
+
+    function startCountdown(startTime) {
+      disableUI();
+      if (countdownInterval) clearInterval(countdownInterval);
+      countdownInterval = setInterval(() => {
+        if (!updateTimer(startTime)) clearInterval(countdownInterval);
+      }, 1000);
+    }
+
+    function disableUI() {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Account Locked';
+      loginForm.querySelectorAll('input').forEach(i => i.disabled = true);
+    }
+
+    function enableUI() {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Sign in';
+      loginForm.querySelectorAll('input').forEach(i => i.disabled = false);
+      errorMessage.style.display = 'none';
+    }
+
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.style.display = 'block';
+    }
+
+    window.onload = () => {
+      const lockoutStart = parseInt(localStorage.getItem('goTrack_lockoutTimestamp'), 10);
+      if (lockoutStart && (Date.now() - lockoutStart < LOCKOUT_DURATION)) {
+        startCountdown(lockoutStart);
+      }
+    };
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const response = await fetch(`${CONFIG.API_BASE_URL}/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          resetLockout();
+          localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('userEmail', email);
+          localStorage.setItem('userRole', result.user.role);
+          localStorage.setItem('userId', result.user.id);
+          localStorage.setItem('userName', result.user.full_name || email);
+
+          if (result.user.employee_id) {
+            localStorage.setItem('employeeId', result.user.employee_id);
+          }
+
+          if (result.user.role === 'Employee') {
+            window.location.href = '/timelog';
+          } else {
+            window.location.href = '/dashboard';
+          }
+        } else {
+          let attempts = getFailedAttempts() + 1;
+          setFailedAttempts(attempts);
+
+          if (attempts >= MAX_ATTEMPTS) {
+            const now = Date.now();
+            localStorage.setItem('goTrack_lockoutTimestamp', now);
+            startCountdown(now);
+          } else {
+            showError(`Incorrect credentials.`);
+          }
+        }
+      } catch (error) {
+        showError("Cannot connect to the server.");
+      }
+    });
+  </script>
+</body>
+
+</html>

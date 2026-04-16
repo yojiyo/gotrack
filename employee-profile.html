@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GoTrack – Employee Profile</title>
+    <link rel="stylesheet" href="/static/dashboard.css" />
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+
+<body>
+    <div id="sidebar-container"></div>
+
+    <main class="main-content">
+        <div id="header-container"></div>
+
+        <div class="profile-container">
+            <a href="/employees" class="back-link" id="backToEmployeesBtn">
+                <i class="ph ph-arrow-left"></i> Back to Employees
+            </a>
+
+            <div class="profile-card flex-between" style="align-items: flex-start;">
+                <div style="display: flex; gap: 24px; align-items: center;">
+                    <div class="avatar-large" id="profile-initials">--</div>
+                    <div class="info-text">
+                        <h2 id="profile-name">Loading...</h2>
+                        <p class="role-text" id="profile-role">Loading...</p>
+                        <div class="contact-row">
+                            <span id="contact-email"><i class="ph ph-envelope-simple"></i> --</span>
+                            <span id="contact-phone"><i class="ph ph-phone"></i> --</span>
+                            <span id="contact-address"><i class="ph ph-map-pin"></i> --</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button id="passwordActionBtn"
+                        style="padding: 8px 16px; border: 1px solid #e2e8f0; background: white; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #64748b; display:flex; align-items:center; gap:6px;">
+                        <i class="ph ph-lock-key"></i> <span id="passwordActionLabel">Change Password</span>
+                    </button>
+                    <button class="btn-primary-solid" onclick="openEditModal()"><i class="ph ph-pencil-simple"></i> Edit
+                        Profile</button>
+
+                    <div id="editModal" class="modal-overlay" style="display: none;">
+                        <div class="modal-card">
+                            <div class="modal-header">
+                                <h3>Edit Employee Profile</h3>
+                                <button onclick="closeEditModal()" class="btn-close">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="input-group"><label>Full Name</label><input type="text" id="edit-fullname">
+                                </div>
+                                <div class="input-group"><label>Email</label><input type="email" id="edit-email"></div>
+                                <div class="input-group"><label>Phone Number</label><input type="text" id="edit-phone">
+                                </div>
+                                <div class="input-group"><label>Address</label><input type="text" id="edit-address">
+                                </div>
+
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn-secondary" onclick="closeEditModal()">Cancel</button>
+                                <button class="btn-primary-solid" onclick="saveProfileChanges()">Save Changes</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-grid">
+                <div>
+                    <div class="profile-card">
+                        <div class="card-header flex-between">
+                            <h3><i class="ph ph-clock text-blue-600"></i> Time Logs</h3>
+                            <button class="link-blue" onclick="openFullHistoryModal()">View Full History</button>
+                        </div>
+
+                        <div class="time-log-today">
+                            <div class="flex-between">
+                                <span style="font-size: 11px; font-weight: 700; color: #2563eb;">TODAY'S ACTIVITY</span>
+                                <span class="badge" id="current-status"
+                                    style="background: #f1f5f9; color: #64748b;">Loading...</span>
+                            </div>
+                            <div class="hours" id="today-hours"><strong>--h</strong> <span
+                                    style="color:#94a3b8; font-size:20px;">/ 8h</span></div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" id="progress-bar" style="width: 0%;"></div>
+                            </div>
+                            <div class="flex-between" style="font-size: 12px; font-weight: 500;">
+                                <span style="color: #64748b;">First Log: <strong style="color: #0f172a;"
+                                        id="first-in-time">--:--</strong></span>
+                                <span style="color: #64748b;" id="total-time-label">--</span>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 24px;">
+                            <h4 style="font-size: 13px; font-weight: 700; color: #0f172a; margin-bottom: 12px;">Recent
+                                Attendance</h4>
+                            <table class="attendance-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Morning</th>
+                                        <th>Afternoon</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attendance-body">
+                                    <tr>
+                                        <td colspan="4" style="text-align:center; padding: 20px; color:#94a3b8;">Loading
+                                            logs...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="profile-card">
+                        <div class="card-header">
+                            <h3>Personal Information</h3>
+                        </div>
+                        <div class="data-grid">
+                            <div class="data-item"><label>FULL NAME</label>
+                                <p id="data-full-name">--</p>
+                            </div>
+                            <div class="data-item"><label>EMAIL ADDRESS</label>
+                                <p id="data-email">--</p>
+                            </div>
+                            <div class="data-item"><label>PHONE</label>
+                                <p id="data-phone">--</p>
+                            </div>
+                            <div class="data-item"><label>ADDRESS</label>
+                                <p id="data-address">--</p>
+                            </div>
+                            <div class="data-item"><label>JOIN DATE</label>
+                                <p id="data-join-date">--</p>
+                            </div>
+                            <div class="data-item"><label>DEPARTMENT</label>
+                                <p id="data-dept">--</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="profile-card">
+                        <div class="card-header flex-between">
+                            <h3><i class="ph ph-camera text-blue-600"></i> Activity Screenshots</h3>
+                            <a href="/gallery" class="link-blue">View All</a>
+                        </div>
+                        <div class="screenshot-grid" id="profile-screenshots">
+                            <div class="screenshot-thumb" style="background: #f1f5f9;"></div>
+                            <div class="screenshot-thumb" style="background: #f1f5f9;"></div>
+                        </div>
+                        <div style="font-size: 12px; color: #94a3b8; text-align: right;" id="last-capture-label">No
+                            captures recorded</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payroll & Salary Computation -->
+
+        <div class="profile-card" style="margin-top: 24px;">
+                        <div class="card-header flex-between" style="background:#f0fdf4; margin:-24px -24px 24px -24px; padding:16px 24px; border-bottom:1px solid #e2e8f0; border-radius:12px 12px 0 0;">
+                            <h3 style="color:#166534;"><i class="ph ph-money text-green-600"></i> Payroll Details</h3>
+                        </div>
+
+                        <div class="flex-between" style="margin-bottom: 24px;">
+                            <div>
+                                <label style="font-size: 11px; font-weight: 700; color: #64748b;">TOTAL TIME SPENT (PERIOD)</label>
+                                <div style="font-size: 24px; font-weight: 700; color: #0f172a; margin-top: 4px;" id="payroll-total-hrs">0 hrs</div>
+                                <div style="font-size: 12px; color: #94a3b8;" id="payroll-total-days">~0.0 Days</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <label style="font-size: 11px; font-weight: 700; color: #64748b;">CURRENT STATUS</label>
+                                <div style="margin-top: 8px;"><span class="badge" id="payroll-status" style="background:#dcfce7; color:#16a34a; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;">Active</span></div>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 16px;">
+                            <label style="font-size: 12px; font-weight: 600; color: #64748b; display: block; margin-bottom: 6px;">Salary Type</label>
+                            <select id="salary-type" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; outline:none; font-family: inherit; color: #334155;">
+                                <option value="hourly">Hourly Rate</option>
+                                <option value="monthly">Monthly Fixed</option>
+                            </select>
+                        </div>
+
+                        <div style="margin-bottom: 24px;">
+                            <label style="font-size: 12px; font-weight: 600; color: #64748b; display: block; margin-bottom: 6px;" id="rate-label">Rate per Hour</label>
+                            <div style="display:flex; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
+                                <span style="background:#f8fafc; padding:10px 16px; border-right:1px solid #e2e8f0; color:#64748b; font-weight: 600;">₱</span>
+                                <input type="number" id="salary-rate" value="0" style="flex:1; border:none; padding:10px; outline:none; font-family: inherit; font-size: 14px;" />
+                                <span style="background:#f8fafc; padding:10px 16px; border-left:1px solid #e2e8f0; color:#64748b; font-size: 12px;">PHP</span>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 24px;">
+                            <label style="font-size: 12px; font-weight: 600; color: #64748b; display: block; margin-bottom: 6px;">Deductions</label>
+                            <div style="display:flex; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
+                                <span style="background:#f8fafc; padding:10px 16px; border-right:1px solid #e2e8f0; color:#64748b; font-weight: 600;">₱</span>
+                                <input type="number" id="salary-deductions" value="0" min="0" style="flex:1; border:none; padding:10px; outline:none; font-family: inherit; font-size: 14px;" />
+                                <span style="background:#f8fafc; padding:10px 16px; border-left:1px solid #e2e8f0; color:#64748b; font-size: 12px;">PHP</span>
+                            </div>
+                        </div>
+
+                        <div class="flex-between" style="align-items: flex-end; margin-bottom: 24px;">
+                            <div style="font-size: 13px; color: #64748b; font-weight: 500;">Gross Computation</div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 28px; font-weight: 800; color: #0f172a;" id="gross-computation">₱0.00</div>
+                                <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;" id="computation-subtext">Based on 0 worked hours</div>
+                            </div>
+                        </div>
+
+                        <button class="btn-primary-solid" style="width: 100%; padding: 12px; border-radius: 8px; display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 14px;" onclick="generatePayslip()">
+                            <i class="ph ph-receipt"></i> Generate Payslip
+                        </button>
+                    </div>
+
+
+        <!-- Full History Modal -->
+        <div id="fullHistoryModal"
+            style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
+            <div
+                style="background:white; border-radius:16px; width:720px; max-height:80vh; display:flex; flex-direction:column; box-shadow:0 20px 40px rgba(0,0,0,0.15); overflow:hidden;">
+                <div
+                    style="padding:24px 28px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <h3 style="margin:0; font-size:18px; font-weight:700; color:#0f172a;">Full Attendance History
+                        </h3>
+                        <p style="margin:4px 0 0; font-size:13px; color:#64748b;">All recorded time logs</p>
+                    </div>
+                    <button onclick="closeFullHistoryModal()"
+                        style="background:none; border:none; font-size:22px; cursor:pointer; color:#94a3b8;">&times;</button>
+                </div>
+                <div style="overflow-y:auto; padding:24px 28px; flex:1;">
+                    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                        <thead>
+                            <tr style="background:#f8fafc;">
+                                <th
+                                    style="padding:10px 14px; text-align:left; font-weight:700; color:#475569; border-bottom:2px solid #e2e8f0;">
+                                    Date</th>
+                                <th
+                                    style="padding:10px 14px; text-align:left; font-weight:700; color:#475569; border-bottom:2px solid #e2e8f0;">
+                                    Morning</th>
+                                <th
+                                    style="padding:10px 14px; text-align:left; font-weight:700; color:#475569; border-bottom:2px solid #e2e8f0;">
+                                    Afternoon</th>
+                                <th
+                                    style="padding:10px 14px; text-align:left; font-weight:700; color:#475569; border-bottom:2px solid #e2e8f0;">
+                                    Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fullHistoryBody">
+                            <tr>
+                                <td colspan="4" style="text-align:center; padding:24px; color:#94a3b8;">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div id="changePasswordModal"
+            style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
+            <div
+                style="background:white; border-radius:16px; padding:32px; width:400px; box-shadow:0 20px 40px rgba(0,0,0,0.15);">
+                <h3 style="margin:0 0 24px; font-size:18px; color:#1e293b;">Change Password</h3>
+
+                <div style="margin-bottom:16px;">
+                    <label
+                        style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:6px;">Current
+                        Password</label>
+                    <input type="password" id="cpCurrent" placeholder="Enter current password"
+                        style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:8px; outline:none; font-family:inherit;">
+                </div>
+
+                <div style="margin-bottom:16px;">
+                    <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:6px;">New
+                        Password</label>
+                    <input type="password" id="cpNew" placeholder="Enter new password"
+                        style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:8px; outline:none; font-family:inherit;">
+                </div>
+
+                <div style="margin-bottom:24px;">
+                    <label
+                        style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:6px;">Confirm
+                        New Password</label>
+                    <input type="password" id="cpConfirm" placeholder="Confirm new password"
+                        style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:8px; outline:none; font-family:inherit;">
+                </div>
+
+                <div id="cpError" style="display:none; color:#ef4444; font-size:13px; margin-bottom:16px;"></div>
+
+                <div style="display:flex; gap:10px; justify-content:flex-end;">
+                    <button onclick="closeChangePasswordModal()"
+                        style="padding:10px 20px; border:1px solid #e2e8f0; background:white; border-radius:8px; cursor:pointer; font-weight:600;">
+                        Cancel
+                    </button>
+                    <button onclick="submitChangePassword()"
+                        style="padding:10px 20px; border:none; background:#2563eb; color:white; border-radius:8px; cursor:pointer; font-weight:600;">
+                        Update Password
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/config.js"></script>
+    <script src="/static/sidebar.js"></script>
+    <script src="/static/header.js"></script>
+    <script src="/static/footer.js"></script>
+
+    <script>
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.replace(`${CONFIG.API_BASE_URL}/`);
+        }
+
+        loadSidebar('employees');
+        loadHeader('Employee Profile');
+        loadFooter();
+
+        let payrollHours = 0;
+        let payrollDays = 0;
+        let payrollEmployeeEmail = '';
+        let payrollEmployeeStatus = 'Active';
+
+        function formatCurrency(value) {
+            return `₱${Number(value || 0).toLocaleString('en-PH', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            })}`;
+        }
+
+        function computePayrollHoursFromLogs(logs) {
+            if (!logs || logs.length === 0) return 0;
+
+            const grouped = {};
+            logs.forEach((l) => {
+                if (!grouped[l.date]) grouped[l.date] = [];
+                grouped[l.date].push(l);
+            });
+
+            let total = 0;
+            Object.entries(grouped).forEach(([day, dayLogs]) => {
+                const morningIn = dayLogs.find(l => l.log_type === 'Morning In')?.timestamp;
+                const afternoonOut = dayLogs.find(l => l.log_type === 'Afternoon Out')?.timestamp;
+                const morningOut = dayLogs.find(l => l.log_type === 'Morning Out')?.timestamp;
+
+                if (!morningIn) return;
+
+                const start = parseDateTime(day, morningIn);
+                const end = afternoonOut ? parseDateTime(day, afternoonOut) : (morningOut ? parseDateTime(day, morningOut) : null);
+
+                if (start && end) {
+                    total += calculateHours(start, end);
+                }
+            });
+
+            return Math.max(0, total);
+        }
+
+        function updatePayrollComputationUI() {
+            const salaryType = document.getElementById('salary-type').value;
+            const rate = parseFloat(document.getElementById('salary-rate').value) || 0;
+            const deductions = Math.max(0, parseFloat(document.getElementById('salary-deductions').value) || 0);
+
+            const gross = salaryType === 'hourly' ? (payrollHours * rate) : rate;
+            const net = Math.max(0, gross - deductions);
+
+            document.getElementById('gross-computation').textContent = formatCurrency(gross);
+            document.getElementById('computation-subtext').textContent =
+                `Net after deductions: ${formatCurrency(net)} (${salaryType === 'hourly' ? `${payrollHours.toFixed(2)} worked hours` : 'monthly fixed'})`;
+            document.getElementById('rate-label').textContent = salaryType === 'hourly' ? 'Rate per Hour' : 'Monthly Salary';
+        }
+
+        function updatePayrollSummaryUI() {
+            document.getElementById('payroll-total-hrs').textContent = `${payrollHours.toFixed(2)} hrs`;
+            document.getElementById('payroll-total-days').textContent = `~${payrollDays.toFixed(1)} Days`;
+
+            const statusEl = document.getElementById('payroll-status');
+            statusEl.textContent = payrollEmployeeStatus || 'Active';
+            if ((payrollEmployeeStatus || '').toLowerCase().includes('active')) {
+                statusEl.style.background = '#dcfce7';
+                statusEl.style.color = '#16a34a';
+            } else {
+                statusEl.style.background = '#fef3c7';
+                statusEl.style.color = '#b45309';
+            }
+        }
+
+        async function generatePayslip() {
+            if (!payrollEmployeeEmail) {
+                alert('Employee profile is still loading. Please try again.');
+                return;
+            }
+
+            const salaryType = document.getElementById('salary-type').value;
+            const salaryRate = parseFloat(document.getElementById('salary-rate').value) || 0;
+            const deductions = Math.max(0, parseFloat(document.getElementById('salary-deductions').value) || 0);
+            if (salaryRate <= 0) {
+                alert('Please enter a valid salary rate before generating payroll.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${CONFIG.API_BASE_URL}/payroll/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        employee_email: payrollEmployeeEmail,
+                        salary_type: salaryType,
+                        salary_rate: salaryRate,
+                        deductions
+                    })
+                });
+
+                const result = await response.json();
+                if (!response.ok) {
+                    alert(`Payroll failed: ${result.detail || 'Unknown error'}`);
+                    return;
+                }
+
+                updatePayrollComputationUI();
+                alert(
+                    `Payslip generated successfully!\n\n` +
+                    `Payroll ID: ${result.payroll_id}\n` +
+                    `Period: ${result.period_start} to ${result.period_end}\n` +
+                    `Hours: ${Number(result.total_hours || 0).toFixed(2)}\n` +
+                    `Gross: ${formatCurrency(result.gross_pay)}\n` +
+                    `Deductions: ${formatCurrency(result.deductions)}\n` +
+                    `Net: ${formatCurrency(result.net_pay)}`
+                );
+            } catch (error) {
+                console.error(error);
+                alert('Server connection error while generating payroll.');
+            }
+        }
+
+        // Set password button behavior based on role
+        const userRole = localStorage.getItem('userRole');
+        const passwordBtn = document.getElementById('passwordActionBtn');
+        const passwordLabel = document.getElementById('passwordActionLabel');
+
+        if (userRole && userRole.trim().toLowerCase() === 'employee') {
+            document.getElementById('backToEmployeesBtn').style.display = 'none';
+            passwordLabel.textContent = 'Change Password';
+            passwordBtn.onclick = openChangePasswordModal;
+        } else {
+            passwordLabel.textContent = 'Reset Password';
+            passwordBtn.onclick = async () => {
+                // Get the email of the employee being viewed
+                const profileEmail = document.getElementById('data-email').textContent;
+                const profileName = document.getElementById('data-full-name').textContent;
+                if (!profileEmail || profileEmail === '--') {
+                    alert('Employee data not loaded yet. Please wait.');
+                    return;
+                }
+                const newPass = prompt(`Reset password for ${profileName}.\n\nEnter new password:`);
+                if (!newPass) return;
+                if (newPass.length < 6) {
+                    alert('Password must be at least 6 characters.');
+                    return;
+                }
+                if (!confirm(`Reset password for ${profileName}?`)) return;
+
+                try {
+                    const response = await fetch(`${CONFIG.API_BASE_URL}/admin/reset-password`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: profileEmail, new_password: newPass })
+                    });
+                    if (response.ok) {
+                        alert(`Password for ${profileName} has been reset successfully.`);
+                    } else {
+                        const err = await response.json();
+                        alert('Error: ' + (err.detail || 'Could not reset password.'));
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+            };
+        }
+
+        function openChangePasswordModal() {
+            document.getElementById('changePasswordModal').style.display = 'flex';
+            document.getElementById('cpCurrent').value = '';
+            document.getElementById('cpNew').value = '';
+            document.getElementById('cpConfirm').value = '';
+            document.getElementById('cpError').style.display = 'none';
+        }
+
+        function closeChangePasswordModal() {
+            document.getElementById('changePasswordModal').style.display = 'none';
+        }
+
+        async function submitChangePassword() {
+            const current = document.getElementById('cpCurrent').value;
+            const newPass = document.getElementById('cpNew').value;
+            const confirm = document.getElementById('cpConfirm').value;
+            const errorEl = document.getElementById('cpError');
+
+            if (!current || !newPass || !confirm) {
+                errorEl.textContent = 'Please fill in all fields.';
+                errorEl.style.display = 'block';
+                return;
+            }
+            if (newPass !== confirm) {
+                errorEl.textContent = 'New passwords do not match.';
+                errorEl.style.display = 'block';
+                return;
+            }
+            if (newPass.length < 6) {
+                errorEl.textContent = 'Password must be at least 6 characters.';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            const email = localStorage.getItem('userEmail');
+
+            try {
+                const response = await fetch(`${CONFIG.API_BASE_URL}/change-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, current_password: current, new_password: newPass })
+                });
+
+                if (response.ok) {
+                    closeChangePasswordModal();
+                    alert('Password changed successfully!');
+                } else {
+                    const err = await response.json();
+                    errorEl.textContent = err.detail || 'Failed to change password.';
+                    errorEl.style.display = 'block';
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function parseDateTime(dateStr, timeStr) {
+            if (!timeStr || timeStr === '--:--') return null;
+            return new Date(`${dateStr} ${timeStr}`);
+        }
+
+        function calculateHours(start, end) {
+            const diffMs = end - start;
+            return Math.max(0, diffMs / (1000 * 60 * 60));
+        }
+
+        async function loadProfileData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const empId = urlParams.get('id');
+            if (!empId) return;
+
+            try {
+                const empResponse = await fetch(`${CONFIG.API_BASE_URL}/get_employees`);
+                const allEmployees = await empResponse.json();
+                const emp = allEmployees.find(e => e.id == empId);
+
+                if (emp) {
+                    payrollEmployeeEmail = emp.email;
+                    payrollEmployeeStatus = emp.status || 'Active';
+
+                    // Header Info
+                    document.getElementById('profile-name').textContent = emp.full_name;
+                    document.getElementById('profile-role').textContent = emp.position;
+                    document.getElementById('profile-initials').textContent = emp.full_name.split(' ').map(n => n[0]).join('').toUpperCase();
+                    document.getElementById('contact-email').innerHTML = `<i class="ph ph-envelope-simple"></i> ${emp.email}`;
+                    document.getElementById('contact-phone').innerHTML = `<i class="ph ph-phone"></i> ${emp.phone_number || 'N/A'}`;
+                    document.getElementById('contact-address').innerHTML = `<i class="ph ph-map-pin"></i> ${emp.address || 'N/A'}`;
+
+                    // Personal Info Card
+                    document.getElementById('data-full-name').textContent = emp.full_name;
+                    document.getElementById('data-email').textContent = emp.email;
+                    document.getElementById('data-phone').textContent = emp.phone_number || 'N/A';
+                    document.getElementById('data-address').textContent = emp.address || 'N/A';
+                    document.getElementById('data-join-date').textContent = emp.join_date || 'N/A';
+                    document.getElementById('data-dept').textContent = emp.department;
+
+                    // Resolve user_id from email AFTER emp is loaded — used for screenshots & View All link
+                    let screenshotUserId = empId; // fallback
+                    try {
+                        const userLookup = await fetch(`${CONFIG.API_BASE_URL}/get-user-id/${encodeURIComponent(emp.email)}`);
+                        if (userLookup.ok) {
+                            const userData = await userLookup.json();
+                            screenshotUserId = userData.user_id;
+                        }
+                    } catch (e) {
+                        console.warn("Could not resolve user_id, falling back to empId");
+                    }
+
+                    // Set "View All" gallery link with correct user_id
+                    document.querySelector('a[href="/gallery"]').href = `/gallery?id=${screenshotUserId}`;
+
+                    // 2. Fetch Time Logs
+                    const logResponse = await fetch(`${CONFIG.API_BASE_URL}/get-logs/${emp.email}`);
+                    const logs = await logResponse.json();
+                    const attendanceBody = document.getElementById('attendance-body');
+
+                    if (logs && logs.length > 0) {
+                        attendanceBody.innerHTML = '';
+                        const grouped = {};
+                        logs.forEach(l => {
+                            if (!grouped[l.date]) grouped[l.date] = [];
+                            grouped[l.date].push(l);
+                        });
+
+                        Object.entries(grouped).reverse().slice(0, 5).forEach(([date, dayLogs]) => {
+                            const morningIn = dayLogs.find(l => l.log_type === 'Morning In')?.timestamp || '--:--';
+                            const morningOut = dayLogs.find(l => l.log_type === 'Morning Out')?.timestamp || '--:--';
+                            const afternoonIn = dayLogs.find(l => l.log_type === 'Afternoon In')?.timestamp || '--:--';
+                            const afternoonOut = dayLogs.find(l => l.log_type === 'Afternoon Out')?.timestamp || '--:--';
+
+                            const isComplete = afternoonOut !== '--:--';
+                            const statusBadge = isComplete
+                                ? `<span class="badge" style="background:#dcfce7; color:#16a34a;">Complete</span>`
+                                : `<span class="badge" style="background:#fef9c3; color:#ca8a04;">In Progress</span>`;
+
+                            attendanceBody.insertAdjacentHTML('beforeend', `
+                                <tr>
+                                    <td style="color: #64748b; font-weight: 500;">${date}</td>
+                                    <td>
+                                        <span style="display:block; font-weight:600; color:#0f172a;">${morningIn} – ${morningOut}</span>
+                                    </td>
+                                    <td>
+                                        <span style="display:block; font-weight:600; color:#0f172a;">${afternoonIn} – ${afternoonOut}</span>
+                                    </td>
+                                    <td>${statusBadge}</td>
+                                </tr>
+                            `);
+                        });
+
+                        const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+                        const todayLogs = grouped[todayStr] || [];
+
+                        if (todayLogs.length > 0) {
+                            const morningInStr = todayLogs.find(l => l.log_type === 'Morning In')?.timestamp;
+                            const morningOutStr = todayLogs.find(l => l.log_type === 'Morning Out')?.timestamp;
+                            const afternoonInStr = todayLogs.find(l => l.log_type === 'Afternoon In')?.timestamp;
+                            const afternoonOutStr = todayLogs.find(l => l.log_type === 'Afternoon Out')?.timestamp;
+
+                            const startTime = parseDateTime(todayStr, morningInStr);
+                            const endTime = afternoonOutStr ? parseDateTime(todayStr, afternoonOutStr) : new Date();
+
+                            if (startTime) {
+                                const totalHours = calculateHours(startTime, endTime);
+                                const progressPercent = Math.min(100, (totalHours / 8) * 100);
+                                document.getElementById('today-hours').innerHTML = `<strong>${totalHours.toFixed(2)}h</strong> <span style="color:#94a3b8; font-size:20px;">/ 8h</span>`;
+                                document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+
+                                const isShiftComplete = !!afternoonOutStr;
+                                if (totalHours < 0.1) {
+                                    const totalMinutes = Math.round(totalHours * 60);
+                                    document.getElementById('total-time-label').textContent = isShiftComplete ? `Total: ${totalMinutes}m` : "Live tracking...";
+                                } else {
+                                    document.getElementById('total-time-label').textContent = isShiftComplete ? "Total: " + totalHours.toFixed(1) + "h" : "Live tracking...";
+                                }
+
+                                document.getElementById('first-in-time').textContent = morningInStr || '--:--';
+                                document.getElementById('current-status').textContent = isShiftComplete ? "Shift Ended" : "Clocked In";
+                                document.getElementById('current-status').style.background = isShiftComplete ? "#fee2e2" : "#dcfce7";
+                                document.getElementById('current-status').style.color = isShiftComplete ? "#ef4444" : "#16a34a";
+                            }
+                        } else {
+                            document.getElementById('today-hours').innerHTML = `<strong>0h</strong> <span style="color:#94a3b8; font-size:20px;">/ 8h</span>`;
+                            document.getElementById('current-status').textContent = "Not Timed In";
+                        }
+                    } else {
+                        attendanceBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:#94a3b8;">No logs found.</td></tr>';
+                    }
+
+                    payrollHours = computePayrollHoursFromLogs(logs || []);
+                    payrollDays = payrollHours / 8;
+                    updatePayrollSummaryUI();
+                    updatePayrollComputationUI();
+
+                    // 3. Load Screenshots using resolved screenshotUserId
+                    try {
+                        const screenResponse = await fetch(`${CONFIG.API_BASE_URL}/get-screenshots/${screenshotUserId}`);
+                        if (screenResponse.ok) {
+                            const screenshots = await screenResponse.json();
+                            const screenGrid = document.getElementById('profile-screenshots');
+                            if (screenshots.length > 0) {
+                                screenGrid.innerHTML = '';
+                                screenshots.slice(0, 4).forEach(s => {
+                                    const div = document.createElement('div');
+                                    div.className = 'screenshot-thumb';
+                                    div.style.backgroundImage = `url('${s.image_url}')`;
+                                    div.style.backgroundSize = 'cover';
+                                    div.style.cursor = 'pointer';
+                                    div.onclick = () => window.open(s.image_url, '_blank');
+                                    screenGrid.appendChild(div);
+                                });
+                                document.getElementById('last-capture-label').textContent = `Last capture: ${new Date(screenshots[0].created_at).toLocaleTimeString()}`;
+                            } else {
+                                screenGrid.innerHTML = '<p style="grid-column:1/-1; font-size:12px; color:#94a3b8;">No screenshots found.</p>';
+                            }
+                        }
+                    } catch (e) {
+                        console.error("Screenshot load error:", e);
+                    }
+                }
+            } catch (e) {
+                console.error("Load Error:", e);
+            }
+        }
+
+        async function openFullHistoryModal() {
+            document.getElementById('fullHistoryModal').style.display = 'flex';
+            const tbody = document.getElementById('fullHistoryBody');
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:24px; color:#94a3b8;">Loading...</td></tr>';
+
+            try {
+                const empEmail = document.getElementById('data-email').textContent;
+                const logResponse = await fetch(`${CONFIG.API_BASE_URL}/get-logs/${empEmail}`);
+                const logs = await logResponse.json();
+
+                if (!logs || logs.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:24px; color:#94a3b8;">No logs found.</td></tr>';
+                    return;
+                }
+
+                const grouped = {};
+                logs.forEach(l => {
+                    if (!grouped[l.date]) grouped[l.date] = [];
+                    grouped[l.date].push(l);
+                });
+
+                tbody.innerHTML = '';
+                Object.entries(grouped).reverse().forEach(([date, dayLogs]) => {
+                    const morningIn = dayLogs.find(l => l.log_type === 'Morning In')?.timestamp || '--:--';
+                    const morningOut = dayLogs.find(l => l.log_type === 'Morning Out')?.timestamp || '--:--';
+                    const afternoonIn = dayLogs.find(l => l.log_type === 'Afternoon In')?.timestamp || '--:--';
+                    const afternoonOut = dayLogs.find(l => l.log_type === 'Afternoon Out')?.timestamp || '--:--';
+
+                    const isComplete = afternoonOut !== '--:--';
+                    const statusBadge = isComplete
+                        ? `<span style="background:#dcfce7; color:#16a34a; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700;">Complete</span>`
+                        : `<span style="background:#fef9c3; color:#ca8a04; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700;">In Progress</span>`;
+
+                    tbody.insertAdjacentHTML('beforeend', `
+                        <tr style="border-bottom:1px solid #f1f5f9;">
+                            <td style="padding:12px 14px; color:#64748b; font-weight:500;">${date}</td>
+                            <td style="padding:12px 14px; font-weight:600; color:#0f172a;">${morningIn} – ${morningOut}</td>
+                            <td style="padding:12px 14px; font-weight:600; color:#0f172a;">${afternoonIn} – ${afternoonOut}</td>
+                            <td style="padding:12px 14px;">${statusBadge}</td>
+                        </tr>
+                    `);
+                });
+            } catch (e) {
+                document.getElementById('fullHistoryBody').innerHTML = '<tr><td colspan="4" style="text-align:center; color:red; padding:24px;">Failed to load logs.</td></tr>';
+            }
+        }
+
+        function closeFullHistoryModal() {
+            document.getElementById('fullHistoryModal').style.display = 'none';
+        }
+
+        document.getElementById('fullHistoryModal').addEventListener('click', function (e) {
+            if (e.target === this) closeFullHistoryModal();
+        });
+
+        document.getElementById('salary-type').addEventListener('change', updatePayrollComputationUI);
+        document.getElementById('salary-rate').addEventListener('input', updatePayrollComputationUI);
+        document.getElementById('salary-deductions').addEventListener('input', updatePayrollComputationUI);
+
+        loadProfileData();
+
+        function openEditModal() {
+            document.getElementById('edit-fullname').value = document.getElementById('data-full-name').textContent;
+            document.getElementById('edit-email').value = document.getElementById('data-email').textContent;
+            document.getElementById('edit-phone').value = document.getElementById('data-phone').textContent === 'N/A' ? '' : document.getElementById('data-phone').textContent;
+            document.getElementById('edit-address').value = document.getElementById('data-address').textContent === 'N/A' ? '' : document.getElementById('data-address').textContent;
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        async function saveProfileChanges() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const empId = urlParams.get('id');
+
+            const updatedData = {
+                full_name: document.getElementById('edit-fullname').value,
+                email: document.getElementById('edit-email').value,
+                phone_number: document.getElementById('edit-phone').value || "N/A",
+                address: document.getElementById('edit-address').value || "N/A"
+            };
+
+            try {
+                const response = await fetch(`${CONFIG.API_BASE_URL}/employees/${empId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedData)
+                });
+
+                if (response.ok) {
+                    alert("Profile updated successfully!");
+                    location.reload();
+                } else {
+                    const err = await response.json();
+                    alert("Update failed: " + err.detail);
+                }
+            } catch (error) { alert("Server connection error."); }
+        }
+
+        setInterval(() => {
+            loadProfileData();
+        }, 60000);
+    </script>
+
+</body>
+
+</html>

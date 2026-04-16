@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>GoTrack – Interview Schedule</title>
+  <link rel="stylesheet" href="/static/dashboard.css">
+  <link rel="stylesheet" href="/static/schedule.css">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+
+<body>
+
+  <div id="sidebar-container"></div>
+  <main class="main-content">
+    <div id="header-container"></div>
+
+    <div class="schedule-container">
+
+      <aside class="unscheduled-panel" ondragover="allowDropUnscheduled(event)" ondrop="dropToUnscheduled(event)">
+        <div class="panel-header-small">
+          <h3><i class="ph ph-users"></i> Unscheduled <span class="badge-count" id="countBadge">0</span></h3>
+          <p>Drag candidates to calendar</p>
+        </div>
+
+        <div class="candidates-list" id="unscheduledList"></div>
+      </aside>
+
+      <div class="calendar-wrapper">
+
+        <div class="calendar-controls">
+          <button class="nav-btn" id="prevWeekBtn"><i class="ph ph-caret-left"></i></button>
+          <span id="currentWeekLabel" class="week-label">Loading...</span>
+          <button class="nav-btn" id="nextWeekBtn"><i class="ph ph-caret-right"></i></button>
+        </div>
+
+        <div class="calendar-body" id="calBody"></div>
+
+      </div>
+    </div>
+  </main>
+
+  <div id="bookingModal" class="modal-backdrop">
+    <div class="modal-content" style="width: 450px;">
+    </div>
+  </div>
+
+  <div id="loadingModal" class="modal-backdrop" style="justify-content: center; align-items: center; z-index: 2000;">
+    <div class="popup-content"
+      style="text-align: center; width: 320px; padding: 40px; border-radius: 16px; background: white; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+      <div class="spinner" style="margin: 0 auto 24px;"></div>
+      <h3 style="color: #1e293b; font-size: 18px; font-weight: 700; margin-bottom: 8px;">Sending Invite...</h3>
+      <p style="color: #64748b; font-size: 13px; line-height: 1.5;">Please wait while we schedule the interview and
+        email the candidate.</p>
+    </div>
+  </div>
+
+  <div id="successModal" class="modal-backdrop" style="justify-content: center; align-items: center; z-index: 2000;">
+    <div class="popup-content"
+      style="text-align: center; width: 320px; padding: 40px; border-radius: 16px; background: white; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+      <div class="popup-icon"
+        style="width: 60px; height: 60px; border-radius: 50%; background: #dcfce7; color: #16a34a; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 20px;">
+        <i class="ph-fill ph-check-circle"></i>
+      </div>
+      <h3 style="color: #1e293b; font-size: 20px; font-weight: 700; margin-bottom: 12px;">Invite Sent!</h3>
+      <p style="color: #64748b; font-size: 13px; margin-bottom: 24px; line-height: 1.5;">The interview has been
+        scheduled and the Zoom link was sent to the candidate.</p>
+      <button onclick="closeSuccessModal()" class="btn-solid"
+        style="width: 100%; justify-content: center;">Awesome</button>
+    </div>
+  </div>
+
+  <script src="/static/config.js"></script>
+  <script src="/static/sidebar.js"></script>
+  <script src="/static/schedule.js"></script>
+  <script src="/static/header.js"></script>
+  <script src="/static/footer.js"></script>
+
+  <script>
+    if (localStorage.getItem('isLoggedIn') !== 'true') {
+      window.location.replace(`${CONFIG.API_BASE_URL}/`);
+    }
+
+    loadSidebar('schedule');
+    loadHeader('Interview Schedule');
+    loadFooter();
+  </script>
+
+
+
+  </script>
+
+
+</body>
+
+</html>

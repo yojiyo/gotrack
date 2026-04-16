@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GoTrack – Time Monitoring</title>
+    <link rel="stylesheet" href="/static/dashboard.css" />
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        .time-monitor-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 70vh;
+        }
+
+        .log-card {
+            background: white;
+            width: 500px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 32px;
+            text-align: center;
+            position: relative;
+        }
+
+        .monitoring-status {
+            display: none;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #ef4444;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+            }
+
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+            }
+        }
+
+        .date-header {
+            color: #64748b;
+            font-size: 16px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .big-clock {
+            font-size: 48px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 24px;
+            letter-spacing: -1px;
+        }
+
+        .log-table {
+            width: 100%;
+            border-top: 1px solid #f1f5f9;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 0;
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .log-entry {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f8fafc;
+            font-size: 14px;
+            color: #334155;
+        }
+
+        .btn-container {
+            margin-top: 32px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-log {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-in {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-out {
+            background: #f97316;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="sidebar-container"></div>
+    <main class="main-content">
+        <header class="top-bar">
+            <h1>Time Monitoring</h1>
+            <div class="user-menu">
+                <div class="user-info">
+                    <div class="details">
+                        <span class="name" id="displayEmail">User</span>
+                        <span class="role">Employee</span>
+                    </div>
+                    <div class="avatar">EM</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="time-monitor-wrapper">
+            <div class="log-card">
+                <div class="monitoring-status" id="statusIndicator">
+                    <div class="pulse-dot"></div>
+                    REC
+                </div>
+                <div class="date-header" id="currentDate"></div>
+                <div class="big-clock" id="liveClock">00:00:00 PM</div>
+                <div class="log-table">
+                    <div class="table-header"><span>Activity</span><span>Time</span></div>
+                    <div id="logList"></div>
+                </div>
+                <div class="btn-container">
+                    <button id="btnIn" class="btn-log btn-in" onclick="sendTimeLog('Time In')">Time In</button>
+                    <button id="btnOut" class="btn-log btn-out" onclick="sendTimeLog('Time Out')"
+                        style="display:none;">Time Out</button>
+                    <button id="btnReset" class="btn-log" onclick="resetTestingData()"
+                        style="background: #64748b; color: white;">Reset Logs</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/config.js"></script>
+    <script src="/static/sidebar.js"></script>
+    <script>
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.replace(`${CONFIG.API_BASE_URL}/`);
+        }
+
+        const MAX_LOGS = 4;
+        const userEmail = localStorage.getItem('userEmail');
+
+        loadSidebar('timelogs');
+        document.getElementById('displayEmail').textContent = userEmail;
+
+        // --- Real-Time Background Listeners ---
+
+        // This listener catches the broadcast from the Main Process.
+        // It works even if this tab is in the background or if you are on the Gallery page.
+        window.electronAPI.onScreenshot(async (screenArray) => {
+            console.log("[DEV] Stitching monitors...");
+            const combinedBase64 = await combineImages(screenArray);
+            saveToGallery(combinedBase64);
+        });
+
+        async function combineImages(sources) {
+            return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const imgs = [];
+                let loadedCount = 0;
+
+                sources.forEach((src, index) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        loadedCount++;
+                        if (loadedCount === sources.length) {
+                            // Set canvas size: Width = Sum of all, Height = Max height
+                            canvas.width = imgs.reduce((sum, i) => sum + i.width, 0);
+                            canvas.height = Math.max(...imgs.map(i => i.height));
+
+                            // Draw images side by side
+                            let currentX = 0;
+                            imgs.forEach(i => {
+                                ctx.drawImage(i, currentX, 0);
+                                currentX += i.width;
+                            });
+
+                            resolve(canvas.toDataURL('image/jpeg', 0.7)); // 0.7 quality to save space
+                        }
+                    };
+                    img.src = src;
+                    imgs[index] = img;
+                });
+            });
+        }
+
+        function saveToGallery(imgData) {
+            const gallery = JSON.parse(localStorage.getItem('employee_gallery') || '[]');
+            gallery.unshift({
+                timestamp: new Date().toISOString(),
+                image: imgData // This is now one single wide image
+            });
+            localStorage.setItem('employee_gallery', JSON.stringify(gallery));
+
+            if (typeof renderGallery === "function") renderGallery();
+        }
+
+        // --- UI Clock & Initialization ---
+
+        function updateClock() {
+            document.getElementById('liveClock').textContent = new Date().toLocaleTimeString();
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        window.onload = async () => {
+            try {
+                const response = await fetch(`${CONFIG.API_BASE_URL}/get-logs/${userEmail}`);
+                const logs = await response.json();
+
+                if (response.ok) {
+                    const logList = document.getElementById('logList');
+                    logList.innerHTML = '';
+
+                    // Filter to today's logs only
+                    const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+                    const todayLogs = logs.filter(log => log.date === todayStr);
+                    const dailyLogs = todayLogs.slice(0, MAX_LOGS);
+                    dailyLogs.forEach(log => addLogRow(log.log_type, log.timestamp));
+
+                    if (dailyLogs.length >= MAX_LOGS) {
+                        disableAllButtons("Completed for today");
+                        return;
+                    }
+
+                    if (dailyLogs.length >= MAX_LOGS) {
+                        disableAllButtons("Completed for today");
+                    } else if (dailyLogs.length > 0) {
+                        const lastType = dailyLogs[dailyLogs.length - 1].log_type;
+                        toggleButtons(lastType);
+
+                        if (lastType === 'Time In') {
+                            document.getElementById('statusIndicator').style.display = 'flex';
+                            const userId = localStorage.getItem('userId'); // ← ADD THIS
+                            window.electronAPI.startMonitoring(userEmail, userId); // ← AND THIS
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to load history:", err);
+            }
+        };
+
+        // --- Core Functions: Logging & Reset ---
+
+        function getLogLabel(type) {
+            const currentCount = document.getElementById('logList').children.length;
+            if (type === 'Time In') {
+                return currentCount === 0 ? 'Morning In' : 'Afternoon In';
+            } else {
+                return currentCount === 1 ? 'Morning Out' : 'Afternoon Out';
+            }
+        }
+
+        async function sendTimeLog(type) {
+            const label = getLogLabel(type);
+            const response = await fetch(`${CONFIG.API_BASE_URL}/log-time`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_email: userEmail, log_type: label })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                const label = getLogLabel(type);
+                addLogRow(label, result.time);
+
+                // Count today's entries and disable if max reached
+                const currentCount = document.getElementById('logList').children.length;
+                if (currentCount >= MAX_LOGS) {
+                    disableAllButtons("Completed for today");
+                    return;
+                }
+
+                if (type === 'Time In') {
+                    document.getElementById('statusIndicator').style.display = 'flex';
+
+                    const email = localStorage.getItem('userEmail');
+                    const userId = localStorage.getItem('userId'); // Retrieve the saved ID
+
+                    console.log("Starting monitoring for ID:", userId); // Debug to check if it's still undefined
+
+                    if (userId) {
+                        window.electronAPI.startMonitoring(email, userId);
+                    } else {
+                        console.error("User ID is missing from localStorage!");
+                    }
+                } else {
+                    window.electronAPI.stopMonitoring();
+                    document.getElementById('statusIndicator').style.display = 'none';
+                }
+                toggleButtons(type);
+            }
+        }
+
+        async function resetTestingData() {
+            if (!confirm("Clear all logs for today?")) return;
+
+            try {
+                // Note: Ensure your FastAPI main.py has the /clear-logs/{email} endpoint
+                const response = await fetch(`${CONFIG.API_BASE_URL}/clear-logs/${userEmail}`, { method: 'DELETE' });
+
+                if (response.ok) {
+                    window.electronAPI.stopMonitoring();
+                    console.log("[DEVELOPMENT] Logs cleared. Reloading...");
+                    location.reload();
+                } else {
+                    alert("Reset failed. Verify the endpoint exists in your backend.");
+                }
+            } catch (err) {
+                console.error("Reset failed:", err);
+            }
+        }
+
+        // --- Helper Functions ---
+
+        function saveToGallery(imgData) {
+            const gallery = JSON.parse(localStorage.getItem('employee_gallery') || '[]');
+            gallery.unshift({
+                timestamp: new Date().toISOString(),
+                image: imgData
+            });
+            localStorage.setItem('employee_gallery', JSON.stringify(gallery));
+
+            // If a renderGallery function exists on this page, call it for real-time refresh
+            if (typeof renderGallery === "function") {
+                renderGallery();
+            }
+        }
+
+        function addLogRow(type, time) {
+            const logList = document.getElementById('logList');
+            const row = document.createElement('div');
+            row.className = 'log-entry';
+            row.innerHTML = `<span>${type}</span><span style="font-weight:600">${time}</span>`;
+            logList.appendChild(row);
+        }
+
+        function toggleButtons(type) {
+            const isIn = (type === 'Time In');
+            document.getElementById('btnIn').style.display = isIn ? 'none' : 'block';
+            document.getElementById('btnOut').style.display = isIn ? 'block' : 'none';
+        }
+
+        function disableAllButtons(message) {
+            const btnIn = document.getElementById('btnIn');
+            btnIn.style.display = 'block';
+            btnIn.disabled = true;
+            btnIn.textContent = message;
+            btnIn.style.background = '#94a3b8';
+            btnIn.style.cursor = 'not-allowed';
+            document.getElementById('btnOut').style.display = 'none';
+            window.electronAPI.stopMonitoring();
+        }
+
+        function updateDate() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = new Date().toLocaleDateString(undefined, options);
+        }
+        updateDate();
+    </script>
+</body>
+
+</html>

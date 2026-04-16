@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Careers at Synthesis</title>
+
+    <link rel="stylesheet" href="/static/careers.css">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#2563eb',
+                        dark: '#0f172a',
+                        subtle: '#64748b',
+                        surface: '#f8fafc',
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                        'card': '0 0 0 1px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.04)',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-white text-slate-900">
+
+    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-100">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white">
+                    <i class="ph-bold ph-cloud text-lg"></i>
+                </div>
+                <span class="font-bold text-xl tracking-tight text-slate-900">Synthesis</span>
+            </div>
+
+            <div class="flex items-center gap-8">
+                <div class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
+                    <a href="#culture" class="hover:text-primary transition-colors">Culture</a>
+                    <a href="#perks" class="hover:text-primary transition-colors">Perks</a>
+                    <a href="#open-roles" class="hover:text-primary transition-colors">Open Roles</a>
+                </div>
+                <button class="p-2 text-slate-400 hover:text-slate-900 transition-colors">
+                    <i class="ph-bold ph-moon text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <section class="pt-16 pb-24 md:pt-24 md:pb-32 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
+
+            <div class="max-w-2xl">
+                <div
+                    class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-primary text-sm font-semibold mb-8">
+                    <span class="relative flex h-2 w-2">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                    </span>
+                    We're Hiring!
+                </div>
+
+                <h1 class="text-5xl lg:text-7xl font-extrabold tracking-tight text-dark mb-6 leading-[1.1]">
+                    Build the Future <br>
+                    <span class="text-primary">with Synthesis</span>
+                </h1>
+
+                <p class="text-lg text-subtle leading-relaxed mb-10 max-w-lg">
+                    We are looking for passionate individuals to join our growing team. Work on exciting projects and
+                    make a global impact. Join a culture of innovation and freedom.
+                </p>
+
+                <div class="flex flex-wrap gap-4">
+                    <a href="#open-roles"
+                        class="bg-primary hover:bg-blue-700 text-white px-8 py-4 rounded-full font-bold transition-all shadow-lg shadow-blue-500/20 flex items-center gap-2">
+                        View Open Roles
+                        <i class="ph-bold ph-arrow-down"></i>
+                    </a>
+                    <a href="#culture"
+                        class="px-8 py-4 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-full font-bold transition-all">
+                        Our Culture
+                    </a>
+                </div>
+            </div>
+
+            <div class="relative">
+                <div class="hero-image-mask">
+                    <img src="/static/career_pic.png" alt="Synthesis Team"
+                        class="w-full h-auto object-cover transform hover:scale-105 transition-transform duration-700">
+                </div>
+
+                <div
+                    class="absolute -top-12 -right-12 w-64 h-64 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob">
+                </div>
+                <div
+                    class="absolute -bottom-12 -left-12 w-64 h-64 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="open-roles" class="py-24 bg-surface">
+        <div class="max-w-7xl mx-auto px-6">
+
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+                <div>
+                    <h2 class="text-3xl font-bold text-dark mb-3">Open Opportunities</h2>
+                    <p class="text-subtle">Discover your next career move in our dynamic team.</p>
+                </div>
+                <div id="department-filters"
+                    class="flex flex-wrap gap-2 p-1 bg-white rounded-xl border border-slate-200 shadow-sm">
+                    <button onclick="filterByDept('All')"
+                        class="dept-btn px-4 py-2 rounded-lg bg-slate-100 text-slate-900 text-sm font-semibold transition-all">All
+                        Roles</button>
+                </div>
+            </div>
+
+            <div id="dynamic-jobs-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            </div>
+        </div>
+    </section>
+
+    <section id="culture" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-20">
+                <h2 class="text-4xl font-bold text-dark mb-6">Why Synthesis?</h2>
+                <p class="text-subtle text-lg max-w-2xl mx-auto">We believe that happy people do the best work. Our
+                    culture is built on trust, transparency, and the pursuit of excellence.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div
+                    class="p-8 rounded-3xl bg-surface border border-slate-100 text-center hover:border-blue-200 transition-colors">
+                    <div
+                        class="w-16 h-16 bg-blue-100 text-primary rounded-2xl flex items-center justify-center mx-auto mb-6">
+                       <i class="ph-bold ph-crosshair text-3xl"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-dark mb-3">Data-Driven Impact</h4>
+                    <p class="text-sm text-subtle leading-relaxed">We measure success by output and data, not office politics. Your hard work is always visible and recognized.
+                    </p>
+                </div>
+
+                <div
+                    class="p-8 rounded-3xl bg-surface border border-slate-100 text-center hover:border-green-200 transition-colors">
+                    <div
+                        class="w-16 h-16 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                       <i class="ph-bold ph-globe-hemisphere-west text-3xl"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-dark mb-3">Location Independent</h4>
+                    <p class="text-sm text-subtle leading-relaxed">Work where you're most productive. Our proprietary tracking systems keep everyone aligned, no matter the time zone.
+                    </p>
+                </div>
+
+                <div
+                    class="p-8 rounded-3xl bg-surface border border-slate-100 text-center hover:border-purple-200 transition-colors">
+                    <div
+                        class="w-16 h-16 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <i class="ph-bold ph-chart-line-up text-3xl"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-dark mb-3">Radical Transparency</h4>
+                    <p class="text-sm text-subtle leading-relaxed">Clear expectations mean zero guesswork. We provide constant feedback so you always know exactly where you stand.</p>
+                </div>
+
+                <div
+                    class="p-8 rounded-3xl bg-surface border border-slate-100 text-center hover:border-orange-200 transition-colors">
+                    <div
+                        class="w-16 h-16 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <i class="ph-bold ph-rocket-launch text-3xl"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-dark mb-3">Fast-Paced Growth</h4>
+                    <p class="text-sm text-subtle leading-relaxed">We move fast and build things that matter. If you thrive under pressure and high accountability, you'll accelerate your career here.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-dark text-white py-24">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <h2 class="text-4xl font-bold mb-6">Didn't find the right role?</h2>
+            <p class="text-slate-400 mb-10 max-w-xl mx-auto text-lg">We're always looking for talented individuals. Send
+                us an open application and we'll keep you in mind for future openings.</p>
+
+            <a href="mailto:careers@gocloud.io"
+                class="inline-flex items-center gap-3 bg-white text-dark px-10 py-4 rounded-full font-bold hover:bg-slate-100 transition-transform hover:-translate-y-1">
+                Send Open Application
+                <i class="ph-bold ph-paper-plane-right"></i>
+            </a>
+
+            <div
+                class="mt-24 pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 bg-primary rounded flex items-center justify-center">
+                        <i class="ph-bold ph-cloud text-white text-xs"></i>
+                    </div>
+                    <span class="font-bold text-lg">Synthesis</span>
+                </div>
+
+                <div class="flex gap-8 text-sm text-slate-400">
+                    <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                    <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+                    <a href="#" class="hover:text-white transition-colors">Cookies</a>
+                </div>
+
+                <div class="flex gap-4">
+                    <a href="https://www.facebook.com/gocloudapps" target="_blank" rel="noopener noreferrer"
+                        class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-primary transition-colors">
+                        <i class="ph-fill ph-facebook-logo text-lg"></i>
+                    </a>
+                    <a href="#"
+                        class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-primary transition-colors">
+                        <i class="ph-fill ph-linkedin-logo text-lg"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div id="applicationModal" class="fixed inset-0 z-[100] hidden" aria-labelledby="modal-title" role="dialog"
+        aria-modal="true">
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity opacity-0" id="modalBackdrop"
+            onclick="closeModal()"></div>
+
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+
+                <div class="relative transform overflow-hidden rounded-3xl bg-white dark:bg-slate-900 text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-4xl opacity-0 translate-y-4 scale-95"
+                    id="modalPanel">
+
+                    <button onclick="closeModal()"
+                        class="absolute top-4 right-4 z-20 p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors">
+                        <span class="material-icons-outlined text-lg">close</span>
+                    </button>
+
+                    <div class="grid md:grid-cols-5 h-full min-h-[500px]">
+
+                        <div
+                            class="md:col-span-2 bg-slate-50 dark:bg-slate-800/50 p-8 border-r border-slate-100 dark:border-slate-800 flex flex-col justify-between">
+                            <div>
+                                <div
+                                    class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 text-primary flex items-center justify-center mb-6">
+                                    <span class="material-icons-outlined text-2xl">work</span>
+                                </div>
+                                <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-2" id="modalJobTitle">
+                                    Job Title</h3>
+                                <p class="text-sm text-slate-500" id="modalSalary">Salary Range</p>
+
+                                <div class="mt-10 space-y-4">
+                                    <div class="step-item flex items-center gap-3 text-primary font-bold" id="ind1">
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm ring-4 ring-blue-100 dark:ring-blue-900/20">
+                                            1</div>
+                                        <span>Contact Info</span>
+                                    </div>
+                                    <div class="step-item flex items-center gap-3 text-slate-400" id="ind2">
+                                        <div
+                                            class="w-8 h-8 rounded-full border-2 border-slate-200 flex items-center justify-center text-sm">
+                                            2</div>
+                                        <span>Experience</span>
+                                    </div>
+                                    <div class="step-item flex items-center gap-3 text-slate-400" id="ind3">
+                                        <div
+                                            class="w-8 h-8 rounded-full border-2 border-slate-200 flex items-center justify-center text-sm">
+                                            3</div>
+                                        <span>About You</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-3 p-8 md:p-10 bg-white dark:bg-slate-900 relative">
+                            <form onsubmit="submitApplication(event)" id="wizardForm" class="application-form" novalidate>
+                                <div class="wizard-step" id="step1">
+                                    <h2 class="step-title">Let's start with the basics.</h2>
+                                    <div id="error-step1" class="error-message hidden">
+                                        Please fill out all required fields to continue.
+                                    </div>
+                                    <div class="input-stack">
+                                        <div class="input-grid">
+                                            <div class="text-left">
+                                                <label for="firstName" class="block text-sm font-semibold text-slate-700 mb-2">
+                                                    First Name <span class="text-red-500">*</span>
+                                                </label>
+                                                <input type="text" id="firstName" required class="form-input" placeholder="e.g. Juan">
+                                            </div>
+                                            
+                                            <div class="text-left">
+                                                <label for="lastName" class="block text-sm font-semibold text-slate-700 mb-2">
+                                                    Last Name <span class="text-red-500">*</span>
+                                                </label>
+                                                <input type="text" id="lastName" required class="form-input" placeholder="e.g. Dela Cruz">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="text-left">
+                                            <label for="email" class="block text-sm font-semibold text-slate-700 mb-2">
+                                                Email Address <span class="text-red-500">*</span>
+                                            </label>
+                                            <input type="email" id="email" name="email" required class="form-input" placeholder="juan@example.com">
+                                        </div>
+                                        
+                                        <div class="text-left">
+                                            <label for="phone" class="block text-sm font-semibold text-slate-700 mb-2">
+                                                Phone Number <span class="text-red-500">*</span>
+                                            </label>
+                                            <input type="tel" id="phone" required class="form-input" placeholder="09XX XXX XXXX">
+                                        </div>
+                                        
+                                        <div class="text-left">
+                                            <label for="linkedin" class="block text-sm font-semibold text-slate-700 mb-2">
+                                                LinkedIn Profile URL <span class="text-xs text-slate-400 font-normal ml-1">(Optional)</span>
+                                            </label>
+                                            <input type="url" id="linkedin" class="form-input" placeholder="https://linkedin.com/in/...">
+                                        </div>
+                                        
+                                        <div class="file-upload-container mt-2">
+                                            <input type="file" id="resume" required class="file-input" onchange="handleFile(this)">
+                                            <div id="uploadText" class="upload-label text-slate-600">
+                                                <span class="text-primary font-semibold">Upload Resume</span> or drag and drop (PDF) <span class="text-red-500">*</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="button-group-end">
+                                        <button type="button" onclick="nextStep(2)" class="btn-primary">Next Step &rarr;</button>
+                                    </div>
+                                </div>
+                            
+                                <div class="wizard-step hidden" id="step2">
+                                    <h2 class="text-2xl font-bold text-slate-900 mb-6">A few quick questions.</h2>
+                                    <div id="error-step2" class="error-message hidden">
+                                        Please answer the location question to proceed.
+                                    </div>
+                                    
+                                    <div class="space-y-6">
+                                        <div class="radio-section text-left">
+                                            <label class="block text-sm font-semibold text-slate-700 mb-3">
+                                                Are you currently located in the Philippines? <span class="text-red-500">*</span>
+                                            </label>
+                                            <div class="grid grid-cols-2 gap-4">
+                                                <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                                                    <input type="radio" name="location" value="yes" required class="w-4 h-4 text-primary border-slate-300" onchange="toggleAddressField(this.value)">
+                                                    <span class="text-sm font-semibold text-slate-700">Yes, I am</span>
+                                                </label>
+                                                <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                                                    <input type="radio" name="location" value="no" class="w-4 h-4 text-primary border-slate-300" onchange="toggleAddressField(this.value)">
+                                                    <span class="text-sm font-semibold text-slate-700">No</span>
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <div id="addressField" class="text-left hidden">
+                                            <label class="block text-sm font-semibold text-slate-700 mb-1">
+                                                Home Address <span class="text-red-500">*</span>
+                                            </label>
+                                            <input type="text" id="homeAddress" class="form-input" placeholder="e.g. 123 Main St, Olongapo City, Bataan">
+                                        </div>
+
+                                        <div class="text-left">
+                                            <label class="block text-sm font-semibold text-slate-700 mb-1">
+                                                Portfolio / GitHub Link <span class="text-xs text-slate-400 font-normal ml-1">(Optional)</span>
+                                            </label>
+                                            <p class="text-xs text-slate-500 mb-2">Show us your best work.</p>
+                                            <input type="url" id="portfolio" placeholder="https://..." class="form-input">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex justify-between items-center mt-8">
+                                        <button type="button" onclick="goToStep(1)" class="font-bold text-slate-400 hover:text-slate-700 transition-colors">Back</button>
+                                        <button type="button" onclick="nextStep(3)" class="btn-primary">Next Step &rarr;</button>
+                                    </div>
+                                </div>
+
+                                <div class="wizard-step hidden" id="step3">
+                                    <h2 class="text-2xl font-bold text-slate-900 mb-6">Anything else?</h2>
+                                    
+                                    <div class="space-y-6">
+                                        <div class="text-left">
+                                            <label class="block text-sm font-semibold text-slate-700 mb-1">
+                                                Message to the Hiring Team <span class="text-xs text-slate-400 font-normal ml-1">(Optional)</span>
+                                            </label>
+                                            <p class="text-xs text-slate-500 mb-2">Tell us briefly why you'd be a great fit for Synthesis.</p>
+                                            <textarea id="applicationNotes" placeholder="Hi, I'm interested in this role because..." class="form-textarea"></textarea>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex justify-between items-center mt-8">
+                                        <button type="button" onclick="goToStep(2)" class="font-bold text-slate-400 hover:text-slate-700 transition-colors">Back</button>
+                                        <button type="submit" class="btn-submit">
+                                            Submit Application <i class="ph-bold ph-paper-plane-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="successModal" class="fixed inset-0 z-[200] hidden" aria-labelledby="modal-title" role="dialog"
+        aria-modal="true">
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity opacity-0" id="successBackdrop">
+        </div>
+
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4 text-center">
+
+                <div class="relative transform overflow-hidden rounded-3xl bg-white dark:bg-slate-900 text-center shadow-2xl transition-all sm:w-full sm:max-w-md p-8 opacity-0 scale-90"
+                    id="successPanel">
+
+                    <div
+                        class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-green-50 dark:bg-green-900/20 mb-6">
+                        <i class="ph-fill ph-check-circle text-5xl text-green-500"></i>
+                    </div>
+
+                    <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">Application Sent!</h3>
+
+                    <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-8">
+                        Thanks for applying! We've sent a confirmation email to your inbox. Our team will review your
+                        profile and get back to you shortly.
+                    </p>
+
+                    <button onclick="closeSuccessModal()"
+                        class="w-full bg-primary hover:bg-blue-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-500/20 transition-all transform active:scale-[0.98]">
+                        Got it, thanks!
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/careers.js"></script>
+    <script src="/static/config.js"></script>
+
+</body>
+
+</html>

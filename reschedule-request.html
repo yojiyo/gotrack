@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Request Reschedule – GoTrack</title>
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/bold/style.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: #2563eb;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .candidate-info {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .candidate-avatar {
+            width: 48px;
+            height: 48px;
+            background: #2563eb;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .candidate-details h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 2px;
+        }
+
+        .candidate-details p {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 28px;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        input[type="date"],
+        input[type="time"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #1e293b;
+            outline: none;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
+
+        .current-schedule {
+            background: #fef3c7;
+            border: 1px solid #fcd34d;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 24px;
+            font-size: 13px;
+            color: #92400e;
+        }
+
+        .current-schedule strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #b45309;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .submit-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .success-state,
+        .error-state,
+        .loading-state {
+            display: none;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .success-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .success-state h3,
+        .error-state h3 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .success-state p,
+        .error-state p {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e2e8f0;
+            border-top-color: #2563eb;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .close-note {
+            font-size: 12px;
+            color: #94a3b8;
+            text-align: center;
+            margin-top: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <div class="logo">
+            <div class="logo-icon">📅</div>
+            <span class="logo-text">GoTrack</span>
+        </div>
+
+        <div id="formState">
+            <div id="candidateInfo" class="candidate-info" style="display:none;">
+                <div class="candidate-avatar" id="avatarInitial">?</div>
+                <div class="candidate-details">
+                    <h3 id="candidateName">Loading...</h3>
+                    <p id="candidateRole">Loading...</p>
+                </div>
+            </div>
+
+            <div id="currentScheduleBox" class="current-schedule" style="display:none;">
+                <strong>Current Schedule</strong>
+                <span id="currentScheduleText"></span>
+            </div>
+
+            <h2>Request a Reschedule</h2>
+            <p class="subtitle">Please select your preferred date and time for the interview. We'll review your request
+                and confirm shortly.</p>
+
+            <div class="form-group">
+                <label>Preferred Date</label>
+                <input type="date" id="preferredDate" />
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Preferred Time</label>
+                    <input type="time" id="preferredTime" />
+                </div>
+                <div class="form-group">
+                    <label>Duration</label>
+                    <select id="preferredDuration">
+                        <option value="30">30 minutes</option>
+                        <option value="45">45 minutes</option>
+                        <option value="60" selected>1 hour</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Notes (Optional)</label>
+                <textarea id="notes" placeholder="Any specific preferences or reasons for the reschedule..."></textarea>
+            </div>
+
+            <button class="submit-btn" onclick="submitReschedule()">
+                Submit Reschedule Request
+            </button>
+        </div>
+
+        <div class="loading-state" id="loadingState">
+            <div class="spinner"></div>
+            <p style="color:#64748b; font-size:14px;">Submitting your request...</p>
+        </div>
+
+        <div class="success-state" id="successState">
+            <div class="success-icon">✅</div>
+            <h3 style="color:#0f172a;">Request Submitted!</h3>
+            <p>Your reschedule request has been sent to the recruitment team. They will contact you shortly to confirm a
+                new interview time.</p>
+            <p class="close-note">You can close this window.</p>
+        </div>
+
+        <div class="error-state" id="errorState">
+            <div class="success-icon">❌</div>
+            <h3 style="color:#dc2626;">Invalid Link</h3>
+            <p>This reschedule link is invalid or has already been used. Please contact the recruitment team directly.
+            </p>
+            <p class="close-note">You can close this window.</p>
+        </div>
+    </div>
+
+    <script>
+        const token = window.location.pathname.split('/').pop();
+
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('preferredDate').min = today;
+        document.getElementById('preferredDate').value = today;
+
+        async function loadScheduleInfo() {
+            try {
+                const res = await fetch(`/reschedule-info/${token}`);
+                if (!res.ok) { showError(); return; }
+                const data = await res.json();
+
+                document.getElementById('candidateInfo').style.display = 'flex';
+                document.getElementById('avatarInitial').textContent = data.candidate_name.charAt(0).toUpperCase();
+                document.getElementById('candidateName').textContent = data.candidate_name;
+                document.getElementById('candidateRole').textContent = data.role;
+
+                if (data.date && data.date !== 'To be scheduled') {
+                    document.getElementById('currentScheduleBox').style.display = 'block';
+                    document.getElementById('currentScheduleText').textContent = `${data.date} at ${data.time}`;
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function submitReschedule() {
+            const date = document.getElementById('preferredDate').value;
+            const time = document.getElementById('preferredTime').value;
+            const duration = document.getElementById('preferredDuration').value;
+            const notes = document.getElementById('notes').value;
+
+            if (!date || !time) { alert('Please select both a preferred date and time.'); return; }
+
+            document.getElementById('formState').style.display = 'none';
+            document.getElementById('loadingState').style.display = 'block';
+
+            try {
+                const res = await fetch(`/reschedule-request/${token}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ date, time, duration: parseInt(duration), notes })
+                });
+
+                document.getElementById('loadingState').style.display = 'none';
+                if (res.ok) {
+                    document.getElementById('successState').style.display = 'block';
+                } else {
+                    showError();
+                }
+            } catch (e) { showError(); }
+        }
+
+        function showError() {
+            document.getElementById('formState').style.display = 'none';
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'block';
+        }
+
+        loadScheduleInfo();
+    </script>
+</body>
+
+</html>
