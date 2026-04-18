@@ -7,3 +7,4 @@ cloudinary
 python-multipart
 requests
 aiofiles
+psycopg2
