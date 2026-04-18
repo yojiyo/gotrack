@@ -23,6 +23,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from collections import defaultdict
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 load_dotenv()
   
 ZOOM_ACCOUNT_ID = os.getenv("ZOOM_ACCOUNT_ID")
@@ -35,6 +37,7 @@ SENDER_EMAIL = os.getenv("SENDER_EMAIL")
 SENDER_PASSWORD = os.getenv("SENDER_PASSWORD")
 
 BASE_URL = os.getenv("BASE_URL", "http://127.0.0.1:8000")
+
 
 cloudinary.config( 
     cloud_name = os.getenv("CLOUDINARY_CLOUD_NAME"), 
@@ -85,34 +88,31 @@ app.add_middleware(
 
 @app.get("/")
 async def root():
-    return FileResponse("index.html")
+    return FileResponse(os.path.join(BASE_DIR, "index.html"))
 
 @app.get("/dashboard")
-async def dashboard(): return FileResponse("dashboard.html")
+async def dashboard(): return FileResponse(os.path.join(BASE_DIR, "dashboard.html"))
 
 @app.get("/candidates")
-async def candidates(): return FileResponse("candidates.html")
+async def candidates(): return FileResponse(os.path.join(BASE_DIR, "candidates.html"))
 
 @app.get("/employees")
-async def employees(): return FileResponse("employees.html")
+async def employees(): return FileResponse(os.path.join(BASE_DIR, "employees.html"))
 
 @app.get("/employee-profile")
-async def employee_profile(): return FileResponse("employee-profile.html")
+async def employee_profile(): return FileResponse(os.path.join(BASE_DIR, "employee-profile.html"))
 
 @app.get("/jobs")
-async def jobs(): return FileResponse("jobs.html")
+async def jobs(): return FileResponse(os.path.join(BASE_DIR, "jobs.html"))
 
 @app.get("/schedule")
-async def schedule(): return FileResponse("schedule.html")
+async def schedule(): return FileResponse(os.path.join(BASE_DIR, "schedule.html"))
 
 @app.get("/gallery")
-async def gallery(): return FileResponse("gallery.html")
+async def gallery(): return FileResponse(os.path.join(BASE_DIR, "gallery.html"))
 
 @app.get("/timelog")
-async def timelog(): return FileResponse("timelog.html")
-
-@app.get("/careers")
-async def careers(): return FileResponse("careers.html")
+async def timelog(): return FileResponse(os.path.join(BASE_DIR, "timelog.html"))
 
 def get_db():
     db = SessionLocal()
@@ -1263,7 +1263,7 @@ async def reschedule_request_page(token: str, db: Session = Depends(get_db)):
     schedule = db.query(models.Schedule).filter(models.Schedule.token == token).first()
     if not schedule:
         return make_response_page("Invalid Link", "This link is invalid or has expired.", "red")
-    return FileResponse("reschedule-request.html")
+    return FileResponse(os.path.join(BASE_DIR, "reschedule-request.html"))
 
 @app.post("/reschedule-request/{token}")
 async def submit_reschedule_request(token: str, data: dict, db: Session = Depends(get_db)):
@@ -1343,7 +1343,7 @@ async def update_cycle_notes(cycle_id: int, data: dict, db: Session = Depends(ge
     db.commit()
     return {"status": "success"}
 
-app.mount("/static", StaticFiles(directory="../"), name="static")
+app.mount("/static", StaticFiles(directory=BASE_DIR), name="static")
 
 if __name__ == "__main__":
     import uvicorn
