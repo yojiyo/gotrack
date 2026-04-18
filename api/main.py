@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Depends, File, UploadFile, Form
 from sqlalchemy.orm import Session
 import models
-from ..database import SessionLocal, engine
+from database import SessionLocal, engine
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime, timedelta, date
@@ -75,6 +75,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://app.synthesisgroup.co", 
+        "gotrack-synthesis.onrender.com",
         "http://127.0.0.1:8000", # for local testing
     ],
     allow_credentials=False,
@@ -1342,10 +1343,11 @@ async def update_cycle_notes(cycle_id: int, data: dict, db: Session = Depends(ge
     db.commit()
     return {"status": "success"}
 
-app.mount("/static", StaticFiles(directory="."), name="static")
+app.mount("/static", StaticFiles(directory="../"), name="static")
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    # uvicorn.run(app, host="127.0.0.1", port=8000)
     # uvicorn.run(app, host="0.0.0.0", port=8000)
     # change to 0.0.0.0 before deploying
+    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8000)))
