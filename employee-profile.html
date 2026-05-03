@@ -461,7 +461,6 @@
             const salaryType = document.getElementById('salary-type').value;
             const rate = parseFloat(document.getElementById('salary-rate').value) || 0;
             const deductions = Math.max(0, parseFloat(document.getElementById('salary-deductions').value) || 0);
-
             const gross = salaryType === 'hourly' ? (payrollHours * rate) : rate;
             const net = Math.max(0, gross - deductions);
 
@@ -882,7 +881,6 @@
         async function saveProfileChanges() {
             const urlParams = new URLSearchParams(window.location.search);
             const empId = urlParams.get('id');
-
             const updatedData = {
                 full_name: document.getElementById('edit-fullname').value,
                 email: document.getElementById('edit-email').value,
