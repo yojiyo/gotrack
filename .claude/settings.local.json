@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git remote *)",
+      "Bash(git fetch *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\user\\\\Downloads\\\\GoTrackSystem-main \\(3\\)\\\\GoTrackSystem-main\" -Recurse -Force)",
+      "Bash(Select-Object FullName)",
+      "Bash(Sort-Object FullName)",
+      "Bash(git ls-tree *)",
+      "Bash(dir /b \"C:\\\\Users\\\\user\\\\Downloads\\\\GoTrackSystem-main \\(3\\)\\\\GoTrackSystem-main\")",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
+    ]
+  }
+}

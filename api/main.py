@@ -39,6 +39,7 @@ SENDER_PASSWORD = os.getenv("SENDER_PASSWORD")
 
 BASE_URL = os.getenv("BASE_URL", "http://127.0.0.1:8000")
 
+
 cloudinary.config( 
     cloud_name = os.getenv("CLOUDINARY_CLOUD_NAME"), 
     api_key = os.getenv("CLOUDINARY_API_KEY"), 
@@ -96,35 +97,35 @@ async def root():
     return FileResponse(path)
 
 @app.get("/dashboard")
-async def dashboard(): 
+async def dashboard():
     return FileResponse(os.path.join(BASE_DIR, "dashboard.html"))
 
 @app.get("/candidates")
-async def candidates(): 
+async def candidates():
     return FileResponse(os.path.join(BASE_DIR, "candidates.html"))
 
 @app.get("/employees")
-async def employees(): 
+async def employees():
     return FileResponse(os.path.join(BASE_DIR, "employees.html"))
 
 @app.get("/employee-profile")
-async def employee_profile(): 
+async def employee_profile():
     return FileResponse(os.path.join(BASE_DIR, "employee-profile.html"))
 
 @app.get("/jobs")
-async def jobs(): 
+async def jobs():
     return FileResponse(os.path.join(BASE_DIR, "jobs.html"))
 
 @app.get("/schedule")
-async def schedule(): 
+async def schedule():
     return FileResponse(os.path.join(BASE_DIR, "schedule.html"))
 
 @app.get("/gallery")
-async def gallery(): 
+async def gallery():
     return FileResponse(os.path.join(BASE_DIR, "gallery.html"))
 
 @app.get("/timelog")
-async def timelog(): 
+async def timelog():
     return FileResponse(os.path.join(BASE_DIR, "timelog.html"))
 
 @app.get("/careers")
@@ -1560,6 +1561,7 @@ app.mount("/static", StaticFiles(directory=BASE_DIR), name="static")
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    # uvicorn.run(app, host="127.0.0.1", port=8000)
     # uvicorn.run(app, host="0.0.0.0", port=8000)
     # change to 0.0.0.0 before deploying
+    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8000)))
