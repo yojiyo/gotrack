@@ -160,7 +160,7 @@
 
         <!-- Payroll & Salary Computation -->
 
-        <div class="profile-card" style="margin-top: 24px;">
+        <div id="payroll-section" class="profile-card" style="margin-top: 24px;">
                         <div class="card-header flex-between" style="background:#f0fdf4; margin:-24px -24px 24px -24px; padding:16px 24px; border-bottom:1px solid #e2e8f0; border-radius:12px 12px 0 0;">
                             <h3 style="color:#166534;"><i class="ph ph-money text-green-600"></i> Payroll Details</h3>
                         </div>
@@ -216,6 +216,105 @@
                         </button>
                     </div>
 
+
+        <!-- Leave Management -->
+        <div id="leave-section" class="profile-card" style="margin-top: 24px;">
+            <div class="card-header flex-between" style="background:#eff6ff; margin:-24px -24px 24px -24px; padding:16px 24px; border-bottom:1px solid #e2e8f0; border-radius:12px 12px 0 0;">
+                <h3 style="color:#1d4ed8;"><i class="ph ph-calendar-check"></i> Leave Management</h3>
+                <button class="btn-primary-solid" id="fileLeaveBtn" onclick="openLeaveModal()" style="font-size:13px; padding:8px 14px;">
+                    <i class="ph ph-plus"></i> File Leave
+                </button>
+            </div>
+
+            <!-- Balance Cards -->
+            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px;" id="leave-balance-grid">
+                <div class="leave-balance-card" style="background:#f0fdf4; border-radius:10px; padding:16px;">
+                    <div style="font-size:11px; font-weight:700; color:#16a34a; margin-bottom:6px;">SICK LEAVE</div>
+                    <div style="font-size:26px; font-weight:800; color:#0f172a;" id="bal-sick-remaining">--</div>
+                    <div style="font-size:12px; color:#94a3b8;" id="bal-sick-label">of 15 days remaining</div>
+                    <div style="margin-top:8px; background:#dcfce7; border-radius:4px; height:6px;">
+                        <div id="bar-sick" style="background:#16a34a; height:6px; border-radius:4px; width:100%; transition:width .4s;"></div>
+                    </div>
+                </div>
+                <div class="leave-balance-card" style="background:#eff6ff; border-radius:10px; padding:16px;">
+                    <div style="font-size:11px; font-weight:700; color:#2563eb; margin-bottom:6px;">VACATION LEAVE</div>
+                    <div style="font-size:26px; font-weight:800; color:#0f172a;" id="bal-vacation-remaining">--</div>
+                    <div style="font-size:12px; color:#94a3b8;" id="bal-vacation-label">of 15 days remaining</div>
+                    <div style="margin-top:8px; background:#dbeafe; border-radius:4px; height:6px;">
+                        <div id="bar-vacation" style="background:#2563eb; height:6px; border-radius:4px; width:100%; transition:width .4s;"></div>
+                    </div>
+                </div>
+                <div class="leave-balance-card" style="background:#fff7ed; border-radius:10px; padding:16px;">
+                    <div style="font-size:11px; font-weight:700; color:#ea580c; margin-bottom:6px;">EMERGENCY LEAVE</div>
+                    <div style="font-size:26px; font-weight:800; color:#0f172a;" id="bal-emergency-remaining">--</div>
+                    <div style="font-size:12px; color:#94a3b8;" id="bal-emergency-label">of 3 days remaining</div>
+                    <div style="margin-top:8px; background:#fed7aa; border-radius:4px; height:6px;">
+                        <div id="bar-emergency" style="background:#ea580c; height:6px; border-radius:4px; width:100%; transition:width .4s;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leave History Table -->
+            <h4 style="font-size:13px; font-weight:700; color:#0f172a; margin-bottom:12px;">Leave History</h4>
+            <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                <thead>
+                    <tr style="background:#f8fafc;">
+                        <th style="padding:10px 14px; text-align:left; font-weight:700; color:#475569; border-bottom:2px solid #e2e8f0;">Type</th>
+                        <th style="padding:10px 14px; text-align:left; font-weight:700; color:#475569; border-bottom:2px solid #e2e8f0;">From</th>
+                        <th style="padding:10px 14px; text-align:left; font-weight:700; color:#475569; border-bottom:2px solid #e2e8f0;">To</th>
+                        <th style="padding:10px 14px; text-align:left; font-weight:700; color:#475569; border-bottom:2px solid #e2e8f0;">Days</th>
+                        <th style="padding:10px 14px; text-align:left; font-weight:700; color:#475569; border-bottom:2px solid #e2e8f0;">Reason</th>
+                        <th style="padding:10px 14px; text-align:left; font-weight:700; color:#475569; border-bottom:2px solid #e2e8f0;">Status</th>
+                        <th style="padding:10px 14px; text-align:left; font-weight:700; color:#475569; border-bottom:2px solid #e2e8f0;"></th>
+                    </tr>
+                </thead>
+                <tbody id="leave-history-body">
+                    <tr><td colspan="7" style="text-align:center; padding:24px; color:#94a3b8;">Loading leave history...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- File Leave Modal -->
+        <div id="leaveModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
+            <div style="background:white; border-radius:16px; padding:32px; width:460px; box-shadow:0 20px 40px rgba(0,0,0,0.15);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+                    <h3 style="margin:0; font-size:18px; color:#1e293b;">File a Leave Request</h3>
+                    <button onclick="closeLeaveModal()" style="background:none; border:none; font-size:22px; cursor:pointer; color:#94a3b8;">&times;</button>
+                </div>
+
+                <div style="margin-bottom:16px;">
+                    <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:6px;">Leave Type</label>
+                    <select id="leave-type" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:8px; outline:none; font-family:inherit; color:#334155;">
+                        <option value="Sick Leave">Sick Leave</option>
+                        <option value="Vacation Leave">Vacation Leave</option>
+                        <option value="Emergency Leave">Emergency Leave</option>
+                    </select>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+                    <div>
+                        <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:6px;">Start Date</label>
+                        <input type="date" id="leave-start" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:8px; outline:none; font-family:inherit; box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:6px;">End Date</label>
+                        <input type="date" id="leave-end" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:8px; outline:none; font-family:inherit; box-sizing:border-box;">
+                    </div>
+                </div>
+
+                <div style="margin-bottom:24px;">
+                    <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:6px;">Reason <span style="font-weight:400;">(optional)</span></label>
+                    <textarea id="leave-reason" rows="3" placeholder="Brief reason for leave..." style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:8px; outline:none; font-family:inherit; resize:vertical; box-sizing:border-box;"></textarea>
+                </div>
+
+                <div id="leave-error" style="display:none; color:#ef4444; font-size:13px; margin-bottom:16px;"></div>
+
+                <div style="display:flex; gap:10px; justify-content:flex-end;">
+                    <button onclick="closeLeaveModal()" style="padding:10px 20px; border:1px solid #e2e8f0; background:white; border-radius:8px; cursor:pointer; font-weight:600;">Cancel</button>
+                    <button onclick="submitLeaveRequest()" style="padding:10px 20px; border:none; background:#2563eb; color:white; border-radius:8px; cursor:pointer; font-weight:600;">Submit Request</button>
+                </div>
+            </div>
+        </div>
 
         <!-- Full History Modal -->
         <div id="fullHistoryModal"
@@ -673,6 +772,9 @@
                     updatePayrollSummaryUI();
                     updatePayrollComputationUI();
 
+                    // Load leave data for this employee
+                    loadLeaveData(emp.email);
+
                     // 3. Load Screenshots using resolved screenshotUserId
                     try {
                         const screenResponse = await fetch(`${CONFIG.API_BASE_URL}/get-screenshots/${screenshotUserId}`);
@@ -808,6 +910,188 @@
         setInterval(() => {
             loadProfileData();
         }, 60000);
+
+        // ── Leave Management ──────────────────────────────────────────────────
+
+        const LEAVE_COLORS = {
+            'Sick Leave':      { bg: '#dcfce7', color: '#16a34a' },
+            'Vacation Leave':  { bg: '#dbeafe', color: '#2563eb' },
+            'Emergency Leave': { bg: '#fed7aa', color: '#ea580c' },
+        };
+
+        const STATUS_COLORS = {
+            Pending:  { bg: '#fef9c3', color: '#ca8a04' },
+            Approved: { bg: '#dcfce7', color: '#16a34a' },
+            Rejected: { bg: '#fee2e2', color: '#ef4444' },
+        };
+
+        function openLeaveModal() {
+            document.getElementById('leaveModal').style.display = 'flex';
+            document.getElementById('leave-error').style.display = 'none';
+            document.getElementById('leave-reason').value = '';
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('leave-start').value = today;
+            document.getElementById('leave-end').value = today;
+        }
+
+        function closeLeaveModal() {
+            document.getElementById('leaveModal').style.display = 'none';
+        }
+
+        async function submitLeaveRequest() {
+            const errorEl = document.getElementById('leave-error');
+            errorEl.style.display = 'none';
+
+            const email = document.getElementById('data-email').textContent;
+            const leaveType = document.getElementById('leave-type').value;
+            const startDate = document.getElementById('leave-start').value;
+            const endDate = document.getElementById('leave-end').value;
+            const reason = document.getElementById('leave-reason').value.trim();
+
+            if (!startDate || !endDate) {
+                errorEl.textContent = 'Please select start and end dates.';
+                errorEl.style.display = 'block';
+                return;
+            }
+            if (endDate < startDate) {
+                errorEl.textContent = 'End date cannot be before start date.';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            try {
+                const res = await fetch(`${CONFIG.API_BASE_URL}/leave/request`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        employee_email: email,
+                        leave_type: leaveType,
+                        start_date: startDate,
+                        end_date: endDate,
+                        reason: reason || null
+                    })
+                });
+                const result = await res.json();
+                if (!res.ok) {
+                    errorEl.textContent = result.detail || 'Failed to submit request.';
+                    errorEl.style.display = 'block';
+                    return;
+                }
+                closeLeaveModal();
+                alert(`Leave request submitted! (${result.days_count} day(s))`);
+                loadLeaveData(email);
+            } catch (e) {
+                errorEl.textContent = 'Server connection error.';
+                errorEl.style.display = 'block';
+            }
+        }
+
+        async function deleteLeaveRequest(requestId, email) {
+            if (!confirm('Delete this leave request?')) return;
+            try {
+                await fetch(`${CONFIG.API_BASE_URL}/leave/requests/${requestId}`, { method: 'DELETE' });
+                loadLeaveData(email);
+            } catch (e) {
+                alert('Failed to delete request.');
+            }
+        }
+
+        async function updateLeaveStatus(requestId, status, email) {
+            const adminEmail = localStorage.getItem('userEmail') || 'admin';
+            try {
+                const res = await fetch(`${CONFIG.API_BASE_URL}/leave/requests/${requestId}/status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status, reviewed_by: adminEmail })
+                });
+                if (res.ok) loadLeaveData(email);
+                else { const e = await res.json(); alert(e.detail || 'Update failed.'); }
+            } catch (e) {
+                alert('Server connection error.');
+            }
+        }
+
+        async function loadLeaveData(email) {
+            if (!email || email === '--') return;
+
+            // Load balance
+            try {
+                const balRes = await fetch(`${CONFIG.API_BASE_URL}/leave/balance/${encodeURIComponent(email)}`);
+                if (balRes.ok) {
+                    const { balance } = await balRes.json();
+                    const map = {
+                        'Sick Leave':      { rem: 'bal-sick-remaining',      lbl: 'bal-sick-label',      bar: 'bar-sick',      total: 15 },
+                        'Vacation Leave':  { rem: 'bal-vacation-remaining',  lbl: 'bal-vacation-label',  bar: 'bar-vacation',  total: 15 },
+                        'Emergency Leave': { rem: 'bal-emergency-remaining', lbl: 'bal-emergency-label', bar: 'bar-emergency', total: 3  },
+                    };
+                    Object.entries(map).forEach(([type, ids]) => {
+                        const b = balance[type] || { allocated: ids.total, used: 0, remaining: ids.total };
+                        document.getElementById(ids.rem).textContent = b.remaining;
+                        document.getElementById(ids.lbl).textContent = `of ${b.allocated} days remaining`;
+                        document.getElementById(ids.bar).style.width = `${(b.remaining / b.allocated) * 100}%`;
+                    });
+                }
+            } catch (e) { console.error('Balance load error:', e); }
+
+            // Load history
+            const tbody = document.getElementById('leave-history-body');
+            try {
+                const histRes = await fetch(`${CONFIG.API_BASE_URL}/leave/requests/${encodeURIComponent(email)}`);
+                const requests = await histRes.json();
+                const isAdmin = (localStorage.getItem('userRole') || '').toLowerCase() !== 'employee';
+
+                if (!requests || requests.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:24px; color:#94a3b8;">No leave requests found.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                requests.forEach(r => {
+                    const sc = STATUS_COLORS[r.status] || STATUS_COLORS.Pending;
+                    const lc = LEAVE_COLORS[r.leave_type] || { bg: '#f1f5f9', color: '#475569' };
+                    const canDelete = r.status === 'Pending';
+                    const approveRejectBtns = isAdmin && r.status === 'Pending'
+                        ? `<button onclick="updateLeaveStatus(${r.id},'Approved','${email}')" style="margin-right:4px; padding:4px 10px; background:#16a34a; color:white; border:none; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600;">Approve</button>
+                           <button onclick="updateLeaveStatus(${r.id},'Rejected','${email}')" style="padding:4px 10px; background:#ef4444; color:white; border:none; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600;">Reject</button>`
+                        : '';
+                    const deleteBtn = canDelete
+                        ? `<button onclick="deleteLeaveRequest(${r.id},'${email}')" style="padding:4px 10px; background:none; border:1px solid #e2e8f0; border-radius:6px; cursor:pointer; font-size:12px; color:#94a3b8;" title="Cancel request"><i class="ph ph-trash"></i></button>`
+                        : '';
+
+                    tbody.insertAdjacentHTML('beforeend', `
+                        <tr style="border-bottom:1px solid #f1f5f9;">
+                            <td style="padding:12px 14px;">
+                                <span style="background:${lc.bg}; color:${lc.color}; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700;">${r.leave_type}</span>
+                            </td>
+                            <td style="padding:12px 14px; color:#475569; font-weight:500;">${r.start_date}</td>
+                            <td style="padding:12px 14px; color:#475569; font-weight:500;">${r.end_date}</td>
+                            <td style="padding:12px 14px; font-weight:600; color:#0f172a;">${r.days_count}</td>
+                            <td style="padding:12px 14px; color:#64748b; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${r.reason || ''}">${r.reason || '—'}</td>
+                            <td style="padding:12px 14px;">
+                                <span style="background:${sc.bg}; color:${sc.color}; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700;">${r.status}</span>
+                            </td>
+                            <td style="padding:12px 14px; white-space:nowrap;">${approveRejectBtns}${deleteBtn}</td>
+                        </tr>
+                    `);
+                });
+            } catch (e) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:red; padding:24px;">Failed to load leave history.</td></tr>';
+            }
+        }
+
+        // Role-based visibility
+        const _role = (localStorage.getItem('userRole') || '').trim().toLowerCase();
+
+        // Hide payroll from employees — only HR managers should see it
+        if (_role === 'employee') {
+            document.getElementById('payroll-section').style.display = 'none';
+        }
+
+        // Hide File Leave button for HR managers — they approve/reject, not file
+        const _leaveFileBtn = document.getElementById('fileLeaveBtn');
+        if (_role !== 'employee') {
+            _leaveFileBtn.style.display = 'none';
+        }
     </script>
 
 </body>

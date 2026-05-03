@@ -170,3 +170,22 @@ class PayrollRecord(Base):
     deductions = Column(Float, default=0)
     net_pay = Column(Float, default=0)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class LeaveRequest(Base):
+    __tablename__ = "leave_requests"
+    id = Column(Integer, primary_key=True, index=True)
+    employee_id = Column(Integer, ForeignKey("employees.id", ondelete="CASCADE"))
+    employee_email = Column(String, index=True)
+    employee_name = Column(String)
+    leave_type = Column(String)  # Sick Leave, Vacation Leave, Emergency Leave
+    start_date = Column(String)  # YYYY-MM-DD
+    end_date = Column(String)    # YYYY-MM-DD
+    days_count = Column(Float, default=1)
+    reason = Column(Text, nullable=True)
+    status = Column(String, default="Pending")  # Pending, Approved, Rejected
+    reviewed_by = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    employee = relationship("Employee", backref="leave_requests")
