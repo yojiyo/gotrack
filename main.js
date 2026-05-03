@@ -49,8 +49,8 @@ function createWindow() {
     
     mainWindow.webContents.session.clearStorageData({ storages: ['localstorage'] })
     .then(() => {
-        // mainWindow.loadURL('http://127.0.0.1:8000');
-        mainWindow.loadURL('https://gotrack-synthesis.onrender.com');
+        mainWindow.loadURL('http://127.0.0.1:8000');
+        // mainWindow.loadURL('https://gotrack-synthesis.onrender.com');
     });
 }
 
