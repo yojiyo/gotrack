@@ -77,8 +77,9 @@ app = FastAPI(lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://app.synthesisgroup.co", 
-        "http://127.0.0.1:8000", # for local testing
+        "https://gotrack-synthesis.onrender.com",
+        "https://app.synthesisgroup.co",
+        "http://127.0.0.1:8000",
     ],
     allow_credentials=False,
     allow_methods=["*"],
@@ -127,8 +128,12 @@ async def timelog():
     return FileResponse(os.path.join(BASE_DIR, "timelog.html"))
 
 @app.get("/careers")
-async def careers(): 
+async def careers():
     return FileResponse(os.path.join(BASE_DIR, "careers.html"))
+
+@app.get("/leave-management")
+async def leave_management():
+    return FileResponse(os.path.join(BASE_DIR, "leave-management.html"))
 
 def get_db():
     db = SessionLocal()
@@ -1358,6 +1363,198 @@ async def update_cycle_notes(cycle_id: int, data: dict, db: Session = Depends(ge
     cycle.updated_at = datetime.utcnow()
     db.commit()
     return {"status": "success"}
+
+# ─── LEAVE MANAGEMENT ────────────────────────────────────────────────────────
+
+LEAVE_ALLOCATIONS = {
+    "Sick Leave": 15,
+    "Vacation Leave": 15,
+    "Emergency Leave": 3,
+}
+
+class LeaveRequestCreate(BaseModel):
+    employee_email: str
+    leave_type: str
+    start_date: str   # YYYY-MM-DD
+    end_date: str     # YYYY-MM-DD
+    reason: Optional[str] = None
+
+class LeaveStatusUpdate(BaseModel):
+    status: str          # Approved or Rejected
+    reviewed_by: Optional[str] = None
+
+
+def _count_days(start: str, end: str) -> float:
+    try:
+        s = datetime.strptime(start, "%Y-%m-%d").date()
+        e = datetime.strptime(end, "%Y-%m-%d").date()
+        return max(1, (e - s).days + 1)
+    except Exception:
+        return 1
+
+
+@app.post("/leave/request")
+async def create_leave_request(data: LeaveRequestCreate, db: Session = Depends(get_db)):
+    employee = db.query(models.Employee).filter(
+        models.Employee.email == data.employee_email
+    ).first()
+    if not employee:
+        raise HTTPException(status_code=404, detail="Employee not found")
+
+    if data.leave_type not in LEAVE_ALLOCATIONS:
+        raise HTTPException(status_code=400, detail=f"Invalid leave type. Must be one of: {', '.join(LEAVE_ALLOCATIONS.keys())}")
+
+    try:
+        start = datetime.strptime(data.start_date, "%Y-%m-%d").date()
+        end = datetime.strptime(data.end_date, "%Y-%m-%d").date()
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Dates must be YYYY-MM-DD format")
+
+    if end < start:
+        raise HTTPException(status_code=400, detail="end_date cannot be before start_date")
+
+    days = _count_days(data.start_date, data.end_date)
+
+    # Check remaining balance
+    year = start.year
+    used = db.query(models.LeaveRequest).filter(
+        models.LeaveRequest.employee_email == data.employee_email,
+        models.LeaveRequest.leave_type == data.leave_type,
+        models.LeaveRequest.status == "Approved",
+        models.LeaveRequest.start_date.like(f"{year}-%")
+    ).all()
+    used_days = sum(r.days_count for r in used)
+    allocated = LEAVE_ALLOCATIONS[data.leave_type]
+    if used_days + days > allocated:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Insufficient {data.leave_type} balance. Remaining: {allocated - used_days:.0f} day(s)."
+        )
+
+    leave = models.LeaveRequest(
+        employee_id=employee.id,
+        employee_email=employee.email,
+        employee_name=employee.full_name,
+        leave_type=data.leave_type,
+        start_date=data.start_date,
+        end_date=data.end_date,
+        days_count=days,
+        reason=data.reason,
+        status="Pending"
+    )
+    db.add(leave)
+
+    log = models.ActivityLog(
+        action="Leave Requested",
+        details=f"{employee.full_name} filed a {data.leave_type} from {data.start_date} to {data.end_date}.",
+        icon_type="orange"
+    )
+    db.add(log)
+    db.commit()
+    db.refresh(leave)
+    return {"status": "success", "leave_id": leave.id, "days_count": days}
+
+
+@app.get("/leave/requests/{employee_email}")
+async def get_leave_requests_by_employee(employee_email: str, db: Session = Depends(get_db)):
+    decoded = unquote(employee_email)
+    requests = db.query(models.LeaveRequest).filter(
+        models.LeaveRequest.employee_email == decoded
+    ).order_by(models.LeaveRequest.id.desc()).all()
+
+    return [
+        {
+            "id": r.id,
+            "leave_type": r.leave_type,
+            "start_date": r.start_date,
+            "end_date": r.end_date,
+            "days_count": r.days_count,
+            "reason": r.reason,
+            "status": r.status,
+            "reviewed_by": r.reviewed_by,
+            "created_at": r.created_at.isoformat() if r.created_at else None,
+        }
+        for r in requests
+    ]
+
+
+@app.get("/leave/requests")
+async def get_all_leave_requests(db: Session = Depends(get_db)):
+    requests = db.query(models.LeaveRequest).order_by(models.LeaveRequest.id.desc()).all()
+    return [
+        {
+            "id": r.id,
+            "employee_name": r.employee_name,
+            "employee_email": r.employee_email,
+            "leave_type": r.leave_type,
+            "start_date": r.start_date,
+            "end_date": r.end_date,
+            "days_count": r.days_count,
+            "reason": r.reason,
+            "status": r.status,
+            "reviewed_by": r.reviewed_by,
+            "created_at": r.created_at.isoformat() if r.created_at else None,
+        }
+        for r in requests
+    ]
+
+
+@app.patch("/leave/requests/{request_id}/status")
+async def update_leave_status(request_id: int, data: LeaveStatusUpdate, db: Session = Depends(get_db)):
+    if data.status not in ("Approved", "Rejected"):
+        raise HTTPException(status_code=400, detail="status must be Approved or Rejected")
+
+    leave = db.query(models.LeaveRequest).filter(models.LeaveRequest.id == request_id).first()
+    if not leave:
+        raise HTTPException(status_code=404, detail="Leave request not found")
+
+    leave.status = data.status
+    leave.reviewed_by = data.reviewed_by
+    leave.updated_at = datetime.utcnow()
+
+    action = "Leave Approved" if data.status == "Approved" else "Leave Rejected"
+    log = models.ActivityLog(
+        action=action,
+        details=f"{leave.employee_name}'s {leave.leave_type} was {data.status.lower()}.",
+        icon_type="green" if data.status == "Approved" else "red"
+    )
+    db.add(log)
+    db.commit()
+    return {"status": "success", "new_status": leave.status}
+
+
+@app.delete("/leave/requests/{request_id}")
+async def delete_leave_request(request_id: int, db: Session = Depends(get_db)):
+    leave = db.query(models.LeaveRequest).filter(models.LeaveRequest.id == request_id).first()
+    if not leave:
+        raise HTTPException(status_code=404, detail="Leave request not found")
+    db.delete(leave)
+    db.commit()
+    return {"status": "deleted"}
+
+
+@app.get("/leave/balance/{employee_email}")
+async def get_leave_balance(employee_email: str, db: Session = Depends(get_db)):
+    decoded = unquote(employee_email)
+    year = datetime.utcnow().year
+    balance = {}
+    for leave_type, allocated in LEAVE_ALLOCATIONS.items():
+        used_records = db.query(models.LeaveRequest).filter(
+            models.LeaveRequest.employee_email == decoded,
+            models.LeaveRequest.leave_type == leave_type,
+            models.LeaveRequest.status == "Approved",
+            models.LeaveRequest.start_date.like(f"{year}-%")
+        ).all()
+        used = sum(r.days_count for r in used_records)
+        balance[leave_type] = {
+            "allocated": allocated,
+            "used": used,
+            "remaining": max(0, allocated - used)
+        }
+    return {"year": year, "balance": balance}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 
 app.mount("/static", StaticFiles(directory=BASE_DIR), name="static")
 

@@ -50,7 +50,7 @@ function createWindow() {
     mainWindow.webContents.session.clearStorageData({ storages: ['localstorage'] })
     .then(() => {
         // mainWindow.loadURL('http://127.0.0.1:8000');
-        mainWindow.loadURL('http://app.synthesisgroup.co');
+        mainWindow.loadURL('https://gotrack-synthesis.onrender.com');
     });
 }
 
@@ -58,7 +58,7 @@ function createWindow() {
 async function triggerTimeOutOnExit(email) {
     try {
         // 1. Fetch today's logs to determine correct label
-        const logsRes = await fetch(`http://app.synthesisgroup.co/get-logs/${email}`);
+        const logsRes = await fetch(`https://gotrack-synthesis.onrender.com/get-logs/${email}`);
         const logs = await logsRes.json();
 
         const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
@@ -70,7 +70,7 @@ async function triggerTimeOutOnExit(email) {
         else if (todayLogs.length === 3) label = 'Afternoon Out';
 
         // 3. Post with correct label
-        const response = await fetch(`http://app.synthesisgroup.co/log-time`, {
+        const response = await fetch(`https://gotrack-synthesis.onrender.com/log-time`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ user_email: email, log_type: label })
