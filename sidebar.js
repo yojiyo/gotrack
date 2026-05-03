@@ -9,7 +9,6 @@ function loadSidebar(activePage) {
         const empId = localStorage.getItem('employeeId');
         menuItems = [
             { name: 'My Profile', link: `/employee-profile?id=${empId}`, icon: 'ph-user-circle', id: 'profile' },
-            { name: 'My Leave', link: `/employee-profile?id=${empId}#leave-section`, icon: 'ph-calendar-check', id: 'leave' },
             { name: 'Time Logs', link: '/timelog', icon: 'ph-clock', id: 'timelogs' },
             { name: 'Gallery', link: '/gallery', icon: 'ph-image', id: 'gallery' }
         ];
