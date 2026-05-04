@@ -10,7 +10,9 @@
       "Bash(dir /b \"C:\\\\Users\\\\user\\\\Downloads\\\\GoTrackSystem-main \\(3\\)\\\\GoTrackSystem-main\")",
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\user\\\\Downloads\\\\GoTrackSystem-main \\(3\\)\\\\GoTrackSystem-main\" -Recurse -Directory)",
+      "Bash(Select-Object -First 20)"
     ]
   }
 }

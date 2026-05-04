@@ -169,6 +169,7 @@ class PayrollRecord(Base):
     gross_pay = Column(Float, default=0)
     deductions = Column(Float, default=0)
     net_pay = Column(Float, default=0)
+    leave_days = Column(Float, default=0)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 

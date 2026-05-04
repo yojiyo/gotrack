@@ -518,11 +518,13 @@
                 }
 
                 updatePayrollComputationUI();
+                const leaveDays = Number(result.leave_days || 0);
                 alert(
                     `Payslip generated successfully!\n\n` +
                     `Payroll ID: ${result.payroll_id}\n` +
                     `Period: ${result.period_start} to ${result.period_end}\n` +
-                    `Hours: ${Number(result.total_hours || 0).toFixed(2)}\n` +
+                    `Hours Worked: ${Number(result.total_hours || 0).toFixed(2)}\n` +
+                    `Approved Leave Days: ${leaveDays} day${leaveDays !== 1 ? 's' : ''} (paid)\n` +
                     `Gross: ${formatCurrency(result.gross_pay)}\n` +
                     `Deductions: ${formatCurrency(result.deductions)}\n` +
                     `Net: ${formatCurrency(result.net_pay)}`

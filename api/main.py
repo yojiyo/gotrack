@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends, File, UploadFile, Form
 from sqlalchemy.orm import Session
+from sqlalchemy import text as sa_text
 import models
 from database import SessionLocal, engine
 from pydantic import BaseModel
@@ -48,6 +49,13 @@ cloudinary.config(
 )
 
 models.Base.metadata.create_all(bind=engine)
+
+# Migration: add leave_days to payroll_records if it doesn't exist yet
+with engine.connect() as _conn:
+    _conn.execute(sa_text(
+        "ALTER TABLE payroll_records ADD COLUMN IF NOT EXISTS leave_days FLOAT DEFAULT 0"
+    ))
+    _conn.commit()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -287,6 +295,24 @@ async def generate_payroll(data: PayrollGenerateRequest, db: Session = Depends(g
     deductions = round(max(0, data.deductions or 0), 2)
     net_pay = round(max(0, gross_pay - deductions), 2)
 
+    # Count approved leave days that overlap with the payroll period
+    leave_days = 0.0
+    if start_date and end_date:
+        approved_leaves = db.query(models.LeaveRequest).filter(
+            models.LeaveRequest.employee_email == data.employee_email,
+            models.LeaveRequest.status == "Approved"
+        ).all()
+        for lv in approved_leaves:
+            try:
+                lv_start = datetime.strptime(lv.start_date, "%Y-%m-%d").date()
+                lv_end = datetime.strptime(lv.end_date, "%Y-%m-%d").date()
+            except Exception:
+                continue
+            overlap_start = max(lv_start, start_date)
+            overlap_end = min(lv_end, end_date)
+            if overlap_end >= overlap_start:
+                leave_days += (overlap_end - overlap_start).days + 1
+
     payroll = models.PayrollRecord(
         employee_id=employee.id,
         employee_email=employee.email,
@@ -297,7 +323,8 @@ async def generate_payroll(data: PayrollGenerateRequest, db: Session = Depends(g
         total_hours=total_hours,
         gross_pay=gross_pay,
         deductions=deductions,
-        net_pay=net_pay
+        net_pay=net_pay,
+        leave_days=leave_days
     )
     db.add(payroll)
     db.commit()
@@ -317,6 +344,7 @@ async def generate_payroll(data: PayrollGenerateRequest, db: Session = Depends(g
         "gross_pay": payroll.gross_pay,
         "deductions": payroll.deductions,
         "net_pay": payroll.net_pay,
+        "leave_days": payroll.leave_days,
         "created_at": payroll.created_at.isoformat() if payroll.created_at else None
     }
 
